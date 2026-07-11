@@ -37,6 +37,14 @@ and may need a custom `partitions.csv` (or a board with more flash) if it
 gets tight. The WebUI bundle's size vs. the LittleFS partition itself is
 still an open question, unchanged by the board switch.
 
+The project now also supports an ESP32-S3-Mini ("Super Mini ESP32-S3")
+board as a second environment (`esp32-s3-mini` in `ESP32/platformio.ini`,
+alongside `esp32dev`). It's configured with the same `default.csv`
+single-app partition scheme, so it has essentially the same ~64% headroom
+situation as `esp32dev`, not meaningfully better -- despite the chip having
+4MB of physical flash, the partition table (not the chip) is what's
+constraining app size here.
+
 ## 4. ESPAsyncWebServer library provenance
 
 The original `me-no-dev/ESPAsyncWebServer` repo is unmaintained. `platformio.ini`

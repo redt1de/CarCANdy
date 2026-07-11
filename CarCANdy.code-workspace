@@ -1,0 +1,24 @@
+{
+	"folders": [
+		{
+			"path": ".",
+			"name": "Project Root"
+		},
+		{
+			"path": "WebUI"
+		},
+		{
+			"path": "ESP32"
+		},
+		{
+			"path": "Teensy"
+		},
+		{
+			"path": "Shared"
+		},
+		{
+			"path": "DOC"
+		}
+	],
+	"settings": {},
+}

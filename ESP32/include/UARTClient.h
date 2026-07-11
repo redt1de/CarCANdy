@@ -2,13 +2,17 @@
 #include <Arduino.h>
 #include "CommClient.h"
 
-// CommClient implementation over Serial2 -- GPIO16 (RX2) / GPIO17 (TX2),
-// UART2's default pins on the classic ESP32 (esp32dev board) -- the
-// physical link to the Teensy when running in UART mode. Serial2 is used
-// exclusively for this link; all debug/status output goes over the
-// default USB Serial instead (see Logging), since mixing plain-text debug
-// prints into this stream would corrupt the binary packet framing. Feeds
-// incoming bytes through a
+// CommClient implementation over a hardware UART -- the physical link to
+// the Teensy when running in UART mode. Which UART object and which pins
+// is board-specific (e.g. Serial2/GPIO16+17 on the classic ESP32, vs
+// Serial0/GPIO43+44 on the ESP32-S3-Mini), so it's selected per
+// PlatformIO environment via the CARCANDY_UART_PORT/RX_PIN/TX_PIN build
+// flags (see ESP32/platformio.ini) rather than hardcoded here -- swapping
+// boards means editing platformio.ini, not this file. Whichever UART is
+// selected is used exclusively for this link; all debug/status output
+// goes over the default USB Serial instead (see Logging), since mixing
+// plain-text debug prints into this stream would corrupt the binary
+// packet framing. Feeds incoming bytes through a
 // CarCANdy::PacketStreamParser (see Shared/Packet.h) so sync-byte
 // collisions with real CAN payload data don't corrupt the stream, and
 // queues completed packets so a burst of several packets between poll()

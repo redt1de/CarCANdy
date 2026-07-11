@@ -98,10 +98,9 @@ void ConfigManager::loadDefaults() {
   logging["toComm"] = true;
   logging["prefix"] = "canlog";
 
-  JsonObject plugins = doc_["plugins"].to<JsonObject>();
-  JsonObject shiftLight = plugins["shiftLight"].to<JsonObject>();
-  shiftLight["enabled"] = false;
-  shiftLight["config"]["rpmThreshold"] = 6500;
+  // No plugin defaults here -- PluginManager::begin() seeds doc_["plugins"]
+  // from each registered plugin's own setDefaultConfig() right after this
+  // runs (or after a successful SD load), via pluginDefaultsTarget() below.
 }
 
 const char *ConfigManager::commMode() const {
@@ -129,4 +128,19 @@ bool ConfigManager::isPluginEnabled(const char *name) const {
 
 JsonObjectConst ConfigManager::pluginConfig(const char *name) const {
   return doc_["plugins"][name]["config"];
+}
+
+JsonObject ConfigManager::pluginDefaultsTarget(const char *name, bool enabledDefault) {
+  JsonVariant pluginsSlot = doc_["plugins"];
+  JsonObject plugins = pluginsSlot.is<JsonObject>() ? pluginsSlot.as<JsonObject>() : pluginsSlot.to<JsonObject>();
+
+  JsonVariant pluginSlot = plugins[name];
+  JsonObject plugin = pluginSlot.is<JsonObject>() ? pluginSlot.as<JsonObject>() : pluginSlot.to<JsonObject>();
+
+  if (plugin["enabled"].isNull()) {
+    plugin["enabled"] = enabledDefault;
+  }
+
+  JsonVariant cfgSlot = plugin["config"];
+  return cfgSlot.is<JsonObject>() ? cfgSlot.as<JsonObject>() : cfgSlot.to<JsonObject>();
 }

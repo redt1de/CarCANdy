@@ -31,6 +31,15 @@ public:
     bool isPluginEnabled(const char* name) const;
     JsonObjectConst pluginConfig(const char* name) const;
 
+    // Ensures plugins.<name> exists, with "enabled" defaulting to
+    // enabledDefault if not already present, and returns its "config"
+    // subobject (existing or newly created) for the caller to merge
+    // per-field defaults into. Safe to call every boot -- never clears or
+    // overwrites existing saved values, only fills in what's missing. See
+    // PluginBase::setDefaultConfig()/setDefault(), which is how
+    // PluginManager::begin() uses this.
+    JsonObject pluginDefaultsTarget(const char* name, bool enabledDefault);
+
 private:
     void loadDefaults();
 
