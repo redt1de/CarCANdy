@@ -80,9 +80,9 @@ void ConfigManager::loadDefaults() {
     uint32_t baud;
     const char *mode;
   } defaults[] = {
-      {0, true, 500000, "read_only"},
       {1, true, 500000, "read_only"},
-      {2, false, 500000, "read_only"},
+      {2, true, 500000, "read_only"},
+      {3, false, 500000, "read_only"},
   };
   for (auto &d : defaults) {
     JsonObject b = buses.add<JsonObject>();
@@ -125,15 +125,20 @@ const char *ConfigManager::filterFile() const {
   return doc_["filters"]["file"] | "/filters.csv";
 }
 
-ConfigManager::CanBusConfig ConfigManager::canBus(uint8_t index) const {
+ConfigManager::CanBusConfig ConfigManager::canBus(uint8_t busNumber) const {
   JsonArrayConst buses = doc_["canBuses"];
-  JsonObjectConst b = buses[index];
-  return CanBusConfig{
-      b["id"] | index,
-      b["enabled"] | false,
-      b["baud"] | 500000u,
-      b["mode"] | "read_only",
-  };
+  for (JsonObjectConst b : buses) {
+    if ((b["id"] | 0) == busNumber) {
+      return CanBusConfig{
+          busNumber,
+          b["enabled"] | false,
+          b["baud"] | 500000u,
+          b["mode"] | "read_only",
+      };
+    }
+  }
+  // No matching entry -- disabled by default rather than guessing a baud.
+  return CanBusConfig{busNumber, false, 500000u, "read_only"};
 }
 
 bool ConfigManager::isPluginEnabled(const char *name) const {

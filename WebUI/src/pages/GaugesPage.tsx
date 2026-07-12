@@ -5,8 +5,9 @@ import { buildObd2RequestFrame, decodeSignal, defaultObd2Signals } from '../obd2
 import type { CanFrameMessage, SignalDefinition } from '../types';
 
 const STORAGE_KEY = 'carcandy.signals';
-// Standard OBD-II lives on bus 1 per this project's convention (see
-// DOC/config.example.json) -- change here if your wiring differs.
+// Bus 1 = CAN1 (see DOC/pinout.md) -- standard OBD-II (pins 6/14 on the
+// J1962 connector) is expected to be wired there. Change here if your
+// wiring differs.
 const OBD2_BUS = 1;
 const POLL_INTERVAL_MS = 400;
 
@@ -30,7 +31,7 @@ interface Reading {
 const emptyDraft = (): Omit<SignalDefinition, 'id'> => ({
   name: '',
   unit: '',
-  bus: 0,
+  bus: 1,
   canId: 0,
   matches: [],
   byteOffset: 0,

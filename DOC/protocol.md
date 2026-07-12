@@ -88,14 +88,15 @@ and a real response if that silence turns out to be confusing in practice.
 
 ## Known limitation
 
-`PACKET_MAX_PAYLOAD` is 512 bytes, sized to comfortably fit the current
-config schema (~370 bytes, see `DOC/config.example.json`) with headroom for
-a few more plugins. If the config schema grows a lot further (many more
-plugins/settings), it could still exceed this — see
-[open-risks.md](open-risks.md). `ConfigManager::toJson()`/`CommManager` treat
-"doesn't fit" as an explicit failure (NACK) rather than corrupting data, but
-real fragmentation/chunking across multiple packets is still not
-implemented.
+`PACKET_MAX_PAYLOAD` is 1024 bytes (bumped from 512 once the config schema's
+actual size, ~505 bytes with the current plugin set, left the old limit
+almost no headroom — see `DOC/config.example.json`). If the config schema
+grows a lot further (many more plugins/settings), it could still exceed
+this — see [open-risks.md](open-risks.md) for that discussion and the
+other options considered (fragmentation, section-scoped config requests,
+MessagePack). `ConfigManager::toJson()`/`CommManager` treat "doesn't fit"
+as an explicit failure (NACK) rather than corrupting data, but real
+fragmentation/chunking across multiple packets is still not implemented.
 
 ## Endianness / struct layout
 

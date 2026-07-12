@@ -27,6 +27,18 @@ CAN2_TX: 1
 CAN3_RX: 30
 CAN3_TX: 31
 
+Bus numbers used everywhere in the firmware/config/WebUI (config.json's
+canBuses[].id, CanFrame.bus, the filter CSV's BUS column, etc.) match the
+CAN controller directly: bus 1 = CAN1, bus 2 = CAN2, bus 3 = CAN3 -- there
+is no bus 0. Which OBD2 signal (HS_CAN1 / MS_CAN / HS_CAN2, per the pinout
+above) each transceiver is physically wired to:
+
+| Bus | Controller | Wired to (fill in) |
+|-----|------------|---------------------|
+| 1   | CAN1       | ?                   |
+| 2   | CAN2       | ?                   |
+| 3   | CAN3       | ?                   |
+
 | Teensy Pin | Function       | Wire Color | Connects To       | Notes |
 |------------|----------------|------------|-------------------|-------|
 | 22         | CAN1 TX        |            | Transceiver 1 TXD |       |

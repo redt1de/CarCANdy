@@ -10,9 +10,12 @@
 #
 # Applies before logging, the ESP32 stream, and plugin dispatch alike --
 # see DOC/protocol.md and DOC/architecture.md.
+#
+# Bus numbers are 1-3, matching the CAN controller (1=CAN1, 2=CAN2, 3=CAN3)
+# -- see DOC/pinout.md for which vehicle bus is wired to which.
 
 # Example: OBD-II response IDs on bus 1 (a range covers all 8 possible ECUs)
 1,0x7E8-0x7EF
 
-# Example: a single noisy broadcast ID on bus 0 you don't care about
-0,0x201
+# Example: a single noisy broadcast ID on bus 2 you don't care about
+2,0x201

@@ -11,11 +11,12 @@
 namespace CarCANdy {
 
 constexpr uint8_t  PACKET_SYNC_BYTE   = 0xAA;
-// Sized to comfortably fit the full config JSON (~370 bytes, see
-// DOC/config.example.json) with headroom for a few more plugins. A config
-// schema that outgrew this would still need real fragmentation -- see
-// DOC/open-risks.md #2.
-constexpr uint16_t PACKET_MAX_PAYLOAD = 512;
+// Bumped 512 -> 1024 to give the config JSON (~505 bytes with the current
+// plugin set, see DOC/config.example.json) real headroom instead of
+// sitting right at the old ceiling. Still just correct sizing, not
+// fragmentation -- a config schema that outgrew this would need real
+// chunking or the other options in DOC/open-risks.md #2.
+constexpr uint16_t PACKET_MAX_PAYLOAD = 1024;
 
 enum class MsgType : uint8_t {
     PING        = 0x01,

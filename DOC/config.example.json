@@ -2,12 +2,6 @@
   "commMode": "UART",
   "canBuses": [
     {
-      "id": 0,
-      "enabled": true,
-      "baud": 500000,
-      "mode": "read_only"
-    },
-    {
       "id": 1,
       "enabled": true,
       "baud": 500000,
@@ -15,7 +9,13 @@
     },
     {
       "id": 2,
-      "enabled": false,
+      "enabled": true,
+      "baud": 500000,
+      "mode": "read_only"
+    },
+    {
+      "id": 3,
+      "enabled": true,
       "baud": 500000,
       "mode": "read_only"
     }
@@ -24,7 +24,7 @@
     "toSerial": true,
     "toSD": true,
     "toComm": true,
-    "prefix": "canlog"
+    "prefix": "mustang"
   },
   "filters": {
     "mode": "none",

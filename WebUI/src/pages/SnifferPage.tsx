@@ -11,7 +11,7 @@ export function SnifferPage() {
   const [busFilter, setBusFilter] = useState<string>('any');
   const [idFilter, setIdFilter] = useState('');
   const [showAll, setShowAll] = useState(false);
-  const [newFilterBus, setNewFilterBus] = useState('0');
+  const [newFilterBus, setNewFilterBus] = useState('1');
   const [newFilterId, setNewFilterId] = useState('');
   const [cmdStatus, setCmdStatus] = useState<string | null>(null);
   const pausedRef = useRef(paused);
@@ -67,9 +67,9 @@ export function SnifferPage() {
           Bus:{' '}
           <select value={busFilter} onChange={(e) => setBusFilter(e.target.value)}>
             <option value="any">any</option>
-            <option value="0">0</option>
             <option value="1">1</option>
             <option value="2">2</option>
+            <option value="3">3</option>
           </select>
         </label>{' '}
         <label>

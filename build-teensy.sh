@@ -22,4 +22,4 @@ else
     echo -e "\n\n${RED}Build FAILED!!!${NC}"
 fi
 
-while true; do read -r -p "${YELLOW}Press Enter to exit... ${NC}" input;[[ -z "$input" ]] && break;done
+echo -e "${YELLOW}Press Enter to exit... ${NC}";while true; do read -r input;[[ -z "$input" ]] && break;done

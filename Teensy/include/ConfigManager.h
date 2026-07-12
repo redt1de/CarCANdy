@@ -29,7 +29,12 @@ public:
     const char* loggingPrefix() const; // base filename for CSV logs, e.g. "canlog"
     const char* filterMode() const; // "allow", "deny", or "none"
     const char* filterFile() const; // path to the BUS,ID filter CSV on SD
-    CanBusConfig canBus(uint8_t index) const;
+
+    // Looks up a bus by its "id" field (1-3, matching the CAN controller --
+    // see CANManager.h) rather than array position, so canBuses entries can
+    // be in any order. Returns a disabled/read_only default if no entry
+    // with that id exists.
+    CanBusConfig canBus(uint8_t busNumber) const;
     bool isPluginEnabled(const char* name) const;
     JsonObjectConst pluginConfig(const char* name) const;
 

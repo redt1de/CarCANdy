@@ -18,12 +18,23 @@ other methods are no-ops) in the meantime.
 
 ## 2. Config payload size vs. `PACKET_MAX_PAYLOAD` (partially addressed)
 
-`PACKET_MAX_PAYLOAD` was bumped from 200 to 512 bytes during Stage 1, which
-comfortably fits the current config schema (~370 bytes minified). This is
-just correct sizing, not fragmentation -- if the schema grows a lot further
-(many more plugins/settings), `ConfigManager::toJson()` will return 0 and
-`CommManager::sendConfigData()` will NACK instead of sending a truncated
-config. Real chunking across multiple packets is still not implemented.
+`PACKET_MAX_PAYLOAD` was bumped 200 -> 512 during Stage 1, then 512 -> 1024
+once the real on-device config (with the current plugin set's fields) hit
+~505 bytes -- right at the old ceiling, not comfortably under it anymore.
+This is still just correct sizing, not fragmentation -- if the schema keeps
+growing (many more plugins/settings), the same problem recurs, just later.
+Options considered, roughly cheapest to most involved: raise this constant
+again; encode the wire payload as MessagePack instead of JSON text
+(`ArduinoJson` already supports this, no new dependency, saves an
+estimated 15-30% but doesn't remove the ceiling); split `CONFIG_GET`/
+`CONFIG_SET` into per-section requests (`canBuses`, `plugins`, etc., each
+naturally small, no reassembly needed, and can stay transparent to the
+WebUI's `/api/config` contract -- only the ESP32<->Teensy transport
+underneath would change); or real fragmentation/chunking across multiple
+packets (still not implemented, and still needs a bounded reassembly
+buffer, so it raises the ceiling rather than removing it too -- its real
+advantage is keeping the common-case packet size, e.g. `CAN_FRAME`, small
+regardless of config size).
 
 ## 3. ESP32 flash partition sizing
 
@@ -80,3 +91,20 @@ feature came out of).
 *everything* -- `FilterManager::begin()` logs a warning for this case, but
 it's easy to trip over by switching to `allow` mode before populating any
 filter entries.
+
+## 7. (Resolved) CANManager never actually received real bus traffic
+
+`CANManager::begin()` originally called only `begin()`/`setBaudRate()`/
+`onReceive()` per bus -- this compiles and works for *transmitting*, but
+silently never receives anything. Confirmed by reading FlexCAN_T4's actual
+ISR (`flexcan_interrupt()` in `FlexCAN_T4.tpp`): its default (non-FIFO)
+mailbox setup only calls `enableMBInterrupt()` on the TX half of mailboxes,
+so RX mailboxes accept frames at the hardware level but the ISR's
+`if (!(imask & (1ULL << mb_num))) continue;` check skips them -- the
+software callback never fires. Fixed by adding `setMaxMB(16)` +
+`enableFIFO()` + `enableFIFOInterrupt()` before `onReceive()` (FIFO mode is
+a separate path with its own interrupt bit that these calls correctly
+enable), matching a previously bench-verified standalone sketch for this
+hardware. This went unnoticed through Stage 1/2 because nothing had tested
+receiving real, unsolicited bus traffic yet -- transmit and the ESP32 link
+worked fine without it.
