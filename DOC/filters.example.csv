@@ -1,0 +1,18 @@
+# CarCANdy filter list -- BUS,ID or BUS,ID_START-ID_END per line.
+# IDs may be decimal or 0x-prefixed hex. Lines starting with # and blank
+# lines are ignored. Lives at the path set in config.json's filters.file
+# (default /filters.csv) on the Teensy's SD card.
+#
+# Effect depends on config.json's filters.mode:
+#   allow -- ONLY these bus/ID entries pass; everything else is dropped.
+#   deny  -- these bus/ID entries are dropped; everything else passes.
+#   none  -- this file is ignored entirely, nothing is filtered.
+#
+# Applies before logging, the ESP32 stream, and plugin dispatch alike --
+# see DOC/protocol.md and DOC/architecture.md.
+
+# Example: OBD-II response IDs on bus 1 (a range covers all 8 possible ECUs)
+1,0x7E8-0x7EF
+
+# Example: a single noisy broadcast ID on bus 0 you don't care about
+0,0x201

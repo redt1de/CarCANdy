@@ -1,12 +1,13 @@
 #include "CommManager.h"
 #include "CANManager.h"
+#include "FilterManager.h"
 #include <Arduino.h>
 #include <string.h>
 
 using namespace CarCANdy;
 
-CommManager::CommManager(ConfigManager& config, CANManager& canManager)
-    : config_(config), canManager_(canManager) {}
+CommManager::CommManager(ConfigManager& config, CANManager& canManager, FilterManager& filterManager)
+    : config_(config), canManager_(canManager), filterManager_(filterManager) {}
 
 void CommManager::begin() {
     bool useSpi = strcmp(config_.commMode(), "SPI") == 0;
@@ -66,12 +67,67 @@ void CommManager::handlePacket(const Packet& pkt) {
         break;
     }
 
+    case MsgType::CMD: {
+        char cmd[80];
+        const size_t len = pkt.header.length < sizeof(cmd) - 1 ? pkt.header.length : sizeof(cmd) - 1;
+        memcpy(cmd, pkt.payload, len);
+        cmd[len] = '\0';
+        if (handleCmd(cmd)) {
+            sendAck();
+        } else {
+            sendNack();
+        }
+        break;
+    }
+
     default:
-        // CMD and any other inbound types: not yet implemented.
         Serial.printf("[CommManager] unhandled inbound MsgType 0x%02X\n", pkt.header.type);
         sendNack();
         break;
     }
+}
+
+// CMD grammar (ASCII payload, case-sensitive) -- see DOC/protocol.md:
+//   RELOAD_FILTERS              -- re-read the filter CSV from SD
+//   SET_FILTER_OVERRIDE:<mode>  -- mode = allow|deny|none|clear (clear
+//                                   reverts to the configured mode); a
+//                                   runtime-only override, not persisted
+//   ADD_FILTER:<bus>,<id>[-<id>]    -- add + persist a filter entry
+//   REMOVE_FILTER:<bus>,<id>[-<id>] -- remove + persist a filter entry
+bool CommManager::handleCmd(const char* cmd) {
+    if (strcmp(cmd, "RELOAD_FILTERS") == 0) {
+        filterManager_.reload();
+        return true;
+    }
+
+    constexpr char kOverridePrefix[] = "SET_FILTER_OVERRIDE:";
+    if (strncmp(cmd, kOverridePrefix, sizeof(kOverridePrefix) - 1) == 0) {
+        const char* value = cmd + sizeof(kOverridePrefix) - 1;
+        if (strcmp(value, "clear") == 0) {
+            filterManager_.clearOverride();
+            return true;
+        }
+        FilterManager::Mode mode;
+        if (!FilterManager::parseModeName(value, mode)) {
+            Serial.printf("[CommManager] unknown filter override mode '%s'\n", value);
+            return false;
+        }
+        filterManager_.setOverride(mode);
+        return true;
+    }
+
+    constexpr char kAddPrefix[] = "ADD_FILTER:";
+    if (strncmp(cmd, kAddPrefix, sizeof(kAddPrefix) - 1) == 0) {
+        return filterManager_.addFilterFromString(cmd + sizeof(kAddPrefix) - 1);
+    }
+
+    constexpr char kRemovePrefix[] = "REMOVE_FILTER:";
+    if (strncmp(cmd, kRemovePrefix, sizeof(kRemovePrefix) - 1) == 0) {
+        return filterManager_.removeFilterFromString(cmd + sizeof(kRemovePrefix) - 1);
+    }
+
+    Serial.printf("[CommManager] unknown CMD: %s\n", cmd);
+    return false;
 }
 
 void CommManager::sendConfigData() {

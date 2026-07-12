@@ -60,4 +60,23 @@ the ESP32's debug `Serial` (USB), never surfaced back to the HTTP client
 that triggered it. Fine for now since both are hand-tested over serial
 monitor, but worth
 revisiting once the WebUI (Stage 3) needs to show real success/failure
-feedback to the user.
+feedback to the user. This now also applies to `/api/cmd`'s filter-control
+commands (`ADD_FILTER`, etc.) -- a rejected/malformed command NACKs
+silently on the Teensy's debug `Serial` with no feedback in the WebUI
+beyond "sent" in the Sniffer tab's status line.
+
+## 6. FilterManager matching is a linear scan
+
+`FilterManager::matchesAnyEntry()` scans the entry list (capped at
+`kMaxEntries = 128`) on every received frame. At realistic vehicle-scale
+entry counts and frame rates this is trivially fast on a 600MHz Cortex-M7,
+but if the entry count or bus load ever grows enough to matter, this is the
+place to optimize (e.g. a sorted array + binary search, or a hash set keyed
+on `(bus, id)`) -- not done now since there's no evidence it's needed yet
+(same reasoning as the mailbox-vs-software-filtering discussion this
+feature came out of).
+
+**Also worth knowing**: `mode: "allow"` with an empty entry list drops
+*everything* -- `FilterManager::begin()` logs a warning for this case, but
+it's easy to trip over by switching to `allow` mode before populating any
+filter entries.

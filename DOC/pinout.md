@@ -1,29 +1,46 @@
 # Pinout / Wiring Reference
 
-Fill this in against the actual prototype wiring. Placeholder rows below.
 
-## Teensy 4.1 <-> SN65HVD230 transceivers
 
-| Teensy Pin | Function       | Wire Color | Connects To      | Notes |
+## OBD2 plug
+SIGNAL      |  PIN  | COLOR
+---------------------------------------
+HS_CAN1_H   | 6     | BLUE
+HS_CAN1_L   | 14    | WHITE/BLUE
+
+MS_CAN_H    | 3     | GREEN
+MS_CAN_L    | 11    | WHITE/GREEN
+
+HS_CAN2_H   | 12    | BROWN
+HS_CAN2_L   | 13    | WHITE/BROWN
+
+12v+        | 16    | ORANGE
+CHASSIS_GND | 4     | WHITE/ORANGE
+SIGNAL_GND  | 5     | WHITE/ORANGE
+
+
+## Teensy CAN Connections
+CAN1_RX: 23 
+CAN1_TX: 22
+CAN2_RX: 0
+CAN2_TX: 1
+CAN3_RX: 30
+CAN3_TX: 31
+
+| Teensy Pin | Function       | Wire Color | Connects To       | Notes |
 |------------|----------------|------------|-------------------|-------|
-| ?          | CAN1 TX        |            | Transceiver 1 TXD |       |
-| ?          | CAN1 RX        |            | Transceiver 1 RXD |       |
-| ?          | CAN2 TX        |            | Transceiver 2 TXD |       |
-| ?          | CAN2 RX        |            | Transceiver 2 RXD |       |
-| ?          | CAN3 TX        |            | Transceiver 3 TXD |       |
-| ?          | CAN3 RX        |            | Transceiver 3 RXD |       |
+| 22         | CAN1 TX        |            | Transceiver 1 TXD |       |
+| 23         | CAN1 RX        |            | Transceiver 1 RXD |       |
+| 2          | CAN2 TX        |            | Transceiver 2 TXD |       |
+| 0          | CAN2 RX        |            | Transceiver 2 RXD |       |
+| 31         | CAN3 TX        |            | Transceiver 3 TXD |       |
+| 30         | CAN3 RX        |            | Transceiver 3 RXD |       |
 | 3.3V       | Transceiver VCC|            | All 3 transceivers|       |
 | GND        | Transceiver GND|            | All 3 transceivers|       |
-|            | CANH / CANL    |            | Vehicle bus(es)   |       |
-
+1 
 ## Teensy 4.1 <-> ESP32 link
 
-Two ESP32 boards are supported, selected by PlatformIO environment (see
-`ESP32/platformio.ini`) -- which UART object + pins the ESP32 side uses is
-set per environment via `CARCANDY_UART_PORT`/`CARCANDY_UART_RX_PIN`/
-`CARCANDY_UART_TX_PIN` build flags, read by `ESP32/src/UARTClient.cpp`.
-
-### `esp32dev` -- classic ESP32 (e.g. WROOM-32 devkit)
+#### `esp32dev` -- classic ESP32 (e.g. WROOM-32 devkit)
 
 | Teensy Pin | Function              | Wire Color | Connects To (ESP32) | Notes |
 |------------|-----------------------|------------|----------------------|-------|
@@ -31,16 +48,8 @@ set per environment via `CARCANDY_UART_PORT`/`CARCANDY_UART_RX_PIN`/
 | 7 (RX2)    | UART RX (Serial2)     |            | ESP32 GPIO17 (TX2)   | UART mode -- Teensy Serial1 avoided, its pins are shared with CAN1 |
 | GND        | Common ground         |            | ESP32 GND            | Required |
 
-ESP32 debug/status output is on the default USB `Serial` (via the board's
-USB-UART bridge chip). Serial2 (GPIO16/17) is reserved exclusively for the
-Teensy link.
 
-### `esp32-s3-mini` -- ESP32-S3-Mini ("Super Mini ESP32-S3" clone board, 19 pins)
-
-This is a generic/clone board (see `DOC/ESP32-S3-Mini_pinout.jpg`), not an
-official Espressif dev board -- its silkscreen "TX"/"RX" pin labels weren't
-reliably identifiable, so the link intentionally uses two unambiguous
-numbered GPIOs instead of trying to match those.
+#### `esp32-s3-mini` -- ESP32-S3-Mini ("Super Mini ESP32-S3" clone board, 19 pins)
 
 | Teensy Pin | Function              | Wire Color | Connects To (ESP32-S3) | Notes |
 |------------|-----------------------|------------|-------------------------|-------|
@@ -48,32 +57,17 @@ numbered GPIOs instead of trying to match those.
 | 7 (RX2)    | UART RX (Serial2)     |            | ESP32-S3 GP1 (UART2 TX, remapped) | |
 | GND        | Common ground         |            | ESP32-S3 GND          | Required |
 
-This board has no separate USB-UART bridge chip -- the USB-C port is the
-ESP32-S3's native USB peripheral. `ARDUINO_USB_CDC_ON_BOOT=1` (set in
-`platformio.ini`) is what makes the debug `Serial` object use that native
-USB connection; without it, `Serial` would silently have no path to the
-USB-C port at all. This is independent of the GP1/GP2 choice above --
-UART2 is remapped onto those pins via the ESP32-S3's GPIO matrix (every
-pin on this board supports UART, matching its pinout diagram's per-pin
-capability tags), the same general approach `esp32dev` uses to put UART2
-on GPIO16/17.
 
-**UART1 was tried first and didn't work** on this board, even with
-identical pins/baud -- confirmed via a standalone test sketch that UART2
-(`HardwareSerial(2)`) works on the same GP1/GP2 pins where UART1 didn't.
-No documented reservation of UART1 was found in the Arduino-ESP32 core
-source, so the root cause is unconfirmed; UART2 was adopted because it's
-the empirically-verified working configuration.
 
-### SPI (both boards, paused -- see open-risks.md)
+### SPI 
+Teensy SPI channels:
+SPI Bus    | MOSI | MISO | SCK	| CS
+--------------------------------------------------
+SPI (SPI0) | 11   |	12	 | 13	| 10 (or any GPIO)
+SPI1	   | 26   |	1	 | 27	| 0 (or any GPIO)
+SPI2	   | 43   |	42	 | 45	| 44 (or any GPIO)
 
-| Function              | Notes |
-|------------------------|-------|
-| SPI MISO (slave out)  | Teensy -- not yet wired/used |
-| SPI MOSI (slave in)   | Teensy -- not yet wired/used |
-| SPI SCK               | not yet wired/used |
-| SPI CS                | not yet wired/used |
-| DRDY (out)            | Teensy -> ESP32 GPIO (interrupt), signals a frame is queued |
+
 
 ## SD Card
 

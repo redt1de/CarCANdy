@@ -47,3 +47,17 @@ export async function sendCanFrame(frame: CanFrameRequest): Promise<void> {
     throw new Error(`POST /api/can/send failed: ${res.status}`);
   }
 }
+
+// Sends a CMD packet to the Teensy (e.g. "RELOAD_FILTERS",
+// "SET_FILTER_OVERRIDE:none", "ADD_FILTER:1,0x201") -- see DOC/protocol.md
+// for the grammar. Fire-and-forget, same as setConfig()/sendCanFrame().
+export async function sendCmd(cmd: string): Promise<void> {
+  const res = await fetch('/api/cmd', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ cmd }),
+  });
+  if (!res.ok) {
+    throw new Error(`POST /api/cmd failed: ${res.status}`);
+  }
+}

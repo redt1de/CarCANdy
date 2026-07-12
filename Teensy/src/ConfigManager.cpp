@@ -98,6 +98,12 @@ void ConfigManager::loadDefaults() {
   logging["toComm"] = true;
   logging["prefix"] = "canlog";
 
+  // "none" by default so upgrading firmware never silently hides traffic
+  // that used to be visible -- filtering is opt-in.
+  JsonObject filters = doc_["filters"].to<JsonObject>();
+  filters["mode"] = "none";
+  filters["file"] = "/filters.csv";
+
   // No plugin defaults here -- PluginManager::begin() seeds doc_["plugins"]
   // from each registered plugin's own setDefaultConfig() right after this
   // runs (or after a successful SD load), via pluginDefaultsTarget() below.
@@ -109,6 +115,14 @@ const char *ConfigManager::commMode() const {
 
 const char *ConfigManager::loggingPrefix() const {
   return doc_["logging"]["prefix"] | "canlog";
+}
+
+const char *ConfigManager::filterMode() const {
+  return doc_["filters"]["mode"] | "none";
+}
+
+const char *ConfigManager::filterFile() const {
+  return doc_["filters"]["file"] | "/filters.csv";
 }
 
 ConfigManager::CanBusConfig ConfigManager::canBus(uint8_t index) const {

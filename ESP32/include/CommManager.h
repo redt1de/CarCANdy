@@ -42,6 +42,11 @@ public:
     // mode check). Fire-and-forget, same as sendConfigSet().
     bool sendCanFrame(const CarCANdy::CanFrame& frame);
 
+    // Sends a CMD packet (e.g. "RELOAD_FILTERS", "SET_FILTER_OVERRIDE:none",
+    // "ADD_FILTER:1,0x201") to the Teensy -- see DOC/protocol.md for the
+    // grammar. Fire-and-forget, same as sendConfigSet().
+    bool sendCmd(const char* cmd);
+
 private:
     void handlePacket(const CarCANdy::Packet& pkt);
     void requestConfig();

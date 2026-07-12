@@ -17,7 +17,7 @@ Defined in [`Shared/Packet.h`](../Shared/Packet.h) and
 |-------------|------------------|--------------------------------------------|
 | PING        | either           | liveness check                             |
 | ACK / NACK  | either           | acknowledge / reject a prior message       |
-| CMD         | ESP32 -> Teensy  | generic command (restart, request status) -- not yet implemented, Teensy replies NACK |
+| CMD         | ESP32 -> Teensy  | generic command -- currently used for filter control (see below); ACK/NACK reply |
 | CONFIG_GET  | ESP32 -> Teensy  | request current config                     |
 | CONFIG_SET  | ESP32 -> Teensy  | apply new config (JSON bytes as payload)   |
 | CONFIG_DATA | Teensy -> ESP32  | config JSON bytes, reply to CONFIG_GET     |
@@ -32,6 +32,24 @@ the Teensy answers (caching the JSON for `GET /api/config`), forwards
 transmit request (both fire-and-forget -- see below), and forwards inbound
 `CAN_FRAME`/`LOG_LINE` out to WebSocket clients via callbacks. `STATUS` isn't
 produced by the Teensy yet, so the ESP32 side just has a `TODO` stub for it.
+
+### CMD grammar
+
+`CMD`'s payload is an ASCII string (case-sensitive), parsed by
+`Teensy/src/CommManager.cpp::handleCmd()`. Currently used entirely for
+filter control (see `Teensy/include/FilterManager.h` and the filtering
+design discussion):
+
+| Command                              | Effect |
+|---------------------------------------|--------|
+| `RELOAD_FILTERS`                       | Re-reads the filter CSV from SD (picks up hand-edits without a reflash) |
+| `SET_FILTER_OVERRIDE:<mode>`           | `mode` = `allow`\|`deny`\|`none`\|`clear`. Runtime-only, **not** persisted to `config.json` -- `clear` reverts to the configured mode. This is what the WebUI Sniffer tab's "show everything" toggle uses, so you can temporarily see unfiltered traffic without touching the saved filter mode. |
+| `ADD_FILTER:<bus>,<id>` or `<bus>,<idStart>-<idEnd>` | Adds an entry and persists it to the filter CSV immediately |
+| `REMOVE_FILTER:<bus>,<id>` or `<bus>,<idStart>-<idEnd>` | Removes a matching entry and persists the change |
+
+IDs may be decimal or `0x`-prefixed hex. The ESP32 forwards these verbatim
+via `CommManager::sendCmd()` / `POST /api/cmd` (`{"cmd": "..."}`) -- it has
+no idea what the strings mean, it's purely a passthrough.
 
 ### Fire-and-forget requests (no reply correlation yet)
 

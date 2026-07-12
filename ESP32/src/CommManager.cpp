@@ -140,3 +140,18 @@ bool CommManager::sendCanFrame(const CanFrame& frame) {
     memcpy(pkt.payload, &frame, sizeof(CanFrame));
     return client_->sendPacket(pkt);
 }
+
+bool CommManager::sendCmd(const char* cmd) {
+    if (!client_) {
+        return false;
+    }
+    const size_t len = strlen(cmd);
+    if (len > PACKET_MAX_PAYLOAD) {
+        return false;
+    }
+    Packet pkt{};
+    pkt.header.type = static_cast<uint8_t>(MsgType::CMD);
+    pkt.header.length = static_cast<uint16_t>(len);
+    memcpy(pkt.payload, cmd, len);
+    return client_->sendPacket(pkt);
+}

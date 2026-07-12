@@ -3,16 +3,23 @@
 #include "CanTypes.h"
 #include "ConfigManager.h"
 
+class FilterManager;
+
 // Owns the 3 physical CAN buses. FlexCAN_T4 objects are templated on the
 // CAN port, so all 3 are always statically instantiated regardless of the
 // `enabled` config flag -- that flag only gates whether begin()/events() get
 // called for a given bus. Per-bus `mode` ("read_only" vs "transmit") gates
 // whether sendFrame() is allowed on that bus.
+//
+// Every received frame is checked against FilterManager::shouldPass()
+// before the frame callback fires -- this is the single, earliest-possible
+// filter point, so a dropped frame never reaches logging, the ESP32
+// stream, or any plugin.
 class CANManager {
 public:
     using FrameCallback = void (*)(const CarCANdy::CanFrame& frame);
 
-    explicit CANManager(ConfigManager& config);
+    CANManager(ConfigManager& config, FilterManager& filterManager);
 
     void begin();
     void loop();

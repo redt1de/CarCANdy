@@ -77,6 +77,24 @@ bool WebServerManager::begin() {
             commManager_.sendCanFrame(frame);
         });
 
+    server_.on(
+        "/api/cmd", HTTP_POST,
+        [](AsyncWebServerRequest* request) { request->send(202, "application/json", "{\"status\":\"queued\"}"); },
+        nullptr,
+        [this](AsyncWebServerRequest*, uint8_t* data, size_t len, size_t index, size_t total) {
+            if (index != 0 || total > 200) {
+                return;
+            }
+            JsonDocument doc;
+            if (deserializeJson(doc, data, len)) {
+                return;
+            }
+            const char* cmd = doc["cmd"] | "";
+            if (cmd[0] != '\0') {
+                commManager_.sendCmd(cmd);
+            }
+        });
+
     server_.serveStatic("/", LittleFS, "/").setDefaultFile("index.html");
 
     server_.begin();

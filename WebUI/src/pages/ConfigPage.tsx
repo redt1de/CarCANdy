@@ -158,6 +158,37 @@ export function ConfigPage() {
         </label>
       </p>
 
+      <h3>Filters</h3>
+      <p>
+        <label>
+          Mode{' '}
+          <select
+            value={draft.filters.mode}
+            onChange={(e) =>
+              setDraft({ ...draft, filters: { ...draft.filters, mode: e.target.value as 'allow' | 'deny' | 'none' } })
+            }
+          >
+            <option value="none">none (no filtering)</option>
+            <option value="deny">deny (drop listed IDs, pass everything else)</option>
+            <option value="allow">allow (only pass listed IDs)</option>
+          </select>
+        </label>{' '}
+        <label>
+          File{' '}
+          <input
+            type="text"
+            value={draft.filters.file}
+            onChange={(e) => setDraft({ ...draft, filters: { ...draft.filters, file: e.target.value } })}
+          />
+        </label>
+      </p>
+      <p className="hint">
+        Entries live in the CSV file on the Teensy's SD card, not here -- add/remove them from the Sniffer tab, or
+        edit the file directly and use Sniffer's "Reload filters" button to pick up the change without reflashing.
+        Applies before logging, the ESP32 stream, and plugins alike; the Sniffer tab can temporarily override this
+        mode for testing without changing what's saved here.
+      </p>
+
       <button onClick={save} disabled={saveState === 'saving'}>
         {saveState === 'saving' ? 'Saving...' : 'Save'}
       </button>

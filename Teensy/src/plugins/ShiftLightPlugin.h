@@ -3,6 +3,17 @@
 #include "PluginBase.h"
 #include <ArduinoJson.h>
 
+/*
+
+RPM: HS1 -> 0x204 ->
+
+0x204 (HS1 & HS3, 10ms):
+b0<<8+b1: accelerator pedal (0-100): ((b0&3)<<8 + b1) / 10
+b3<<8+b4: matches RPM, smoother up/down edges: (b3<<8 + b4)*2
+
+
+*/
+
 // Anonymous enum with an explicit uint8_t underlying type -- NOT `enum
 // uint8_t { ... }`, which would declare a *type* named uint8_t and collide
 // with the real uint8_t typedef from stdint.h.
@@ -47,10 +58,11 @@ public:
   }
 
   void onCanFrame(const CarCANdy::CanFrame &frame) override {
-    // TODO(future): check frame.id against the RPM PID for this vehicle,
-    // compare against shiftThreshold_/redlineThreshold_, and drive the
-    // shift light GPIO according to shiftLightMode_.
-    (void)frame;
+    if (frame.bus == 1 && frame.id == 0x204) {
+      uint8_t A = frame.data[3];
+      uint8_t B = frame.data[4];
+      g_EngineRPM = (A * 256 + B) * 2;
+    }
   }
 
 private:
@@ -58,4 +70,5 @@ private:
   uint16_t redlineThreshold_ = 6500;
   bool trackModeOnly_ = true;
   uint8_t shiftLightMode_ = MODE_FLASH;
+  int32_t g_EngineRPM = 0;
 };

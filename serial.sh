@@ -10,11 +10,9 @@ TEENSY_PORT=$(find /dev/serial/by-id -name '*Teensy*' | head -n1)
 
 tmux kill-session -t "$SESSION" 2>/dev/null || true
 
-tmux new-session -d -s "$SESSION" \
-    "pio device monitor -p $ESP_PORT -b $BAUD"
+tmux new-session -d -s "$SESSION" "pio device monitor -p $ESP_PORT -b $BAUD"
 
-tmux split-window -h -t "$SESSION:0" \
-    "pio device monitor -p $TEENSY_PORT -b $BAUD"
+tmux split-window -h -t "$SESSION:0" "pio device monitor -p $TEENSY_PORT -b $BAUD"
 
 tmux select-layout -t "$SESSION:0" even-horizontal
 tmux set-option -t "$SESSION" pane-border-status top

@@ -3,7 +3,6 @@
 #include "WebServerManager.h"
 #include "WifiManager.h"
 #include <Arduino.h>
-
 Logging logging;
 WifiManager wifiManager;
 // SPI is on hold for now (see DOC/open-risks.md #1) -- UART only until that

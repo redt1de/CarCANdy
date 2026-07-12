@@ -26,6 +26,10 @@
     "toComm": true,
     "prefix": "canlog"
   },
+  "filters": {
+    "mode": "none",
+    "file": "/filters.csv"
+  },
   "plugins": {
     "shiftLight": {
       "enabled": false,

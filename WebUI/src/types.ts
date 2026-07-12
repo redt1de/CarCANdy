@@ -22,6 +22,10 @@ export interface CarCandyConfig {
     toComm: boolean;
     prefix: string;
   };
+  filters: {
+    mode: 'allow' | 'deny' | 'none';
+    file: string;
+  };
   plugins: Record<string, PluginConfig>;
 }
 

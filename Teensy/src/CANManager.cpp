@@ -1,8 +1,10 @@
 #include "CANManager.h"
+#include "FilterManager.h"
 #include <string.h>
 
 namespace {
 CANManager::FrameCallback g_frameCallback = nullptr;
+FilterManager* g_filterManager = nullptr;
 
 CarCANdy::CanFrame toCanFrame(uint8_t bus, const CAN_message_t& msg) {
     CarCANdy::CanFrame frame{};
@@ -28,18 +30,24 @@ CAN_message_t toCanMessage(const CarCANdy::CanFrame& frame) {
     return msg;
 }
 
-void onCan1Frame(const CAN_message_t& msg) {
-    if (g_frameCallback) g_frameCallback(toCanFrame(0, msg));
+void dispatchFrame(uint8_t bus, const CAN_message_t& msg) {
+    CarCANdy::CanFrame frame = toCanFrame(bus, msg);
+    if (g_filterManager && !g_filterManager->shouldPass(frame.bus, frame.id)) {
+        return;
+    }
+    if (g_frameCallback) {
+        g_frameCallback(frame);
+    }
 }
-void onCan2Frame(const CAN_message_t& msg) {
-    if (g_frameCallback) g_frameCallback(toCanFrame(1, msg));
-}
-void onCan3Frame(const CAN_message_t& msg) {
-    if (g_frameCallback) g_frameCallback(toCanFrame(2, msg));
-}
+
+void onCan1Frame(const CAN_message_t& msg) { dispatchFrame(0, msg); }
+void onCan2Frame(const CAN_message_t& msg) { dispatchFrame(1, msg); }
+void onCan3Frame(const CAN_message_t& msg) { dispatchFrame(2, msg); }
 } // namespace
 
-CANManager::CANManager(ConfigManager& config) : config_(config) {}
+CANManager::CANManager(ConfigManager& config, FilterManager& filterManager) : config_(config) {
+    g_filterManager = &filterManager;
+}
 
 void CANManager::begin() {
     auto bus0 = config_.canBus(0);

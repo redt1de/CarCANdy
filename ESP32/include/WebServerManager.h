@@ -9,6 +9,8 @@
 // - POST /api/config  -- forwards a new config JSON to the Teensy (fire-and-forget,
 //                         see CommManager::sendConfigSet())
 // - POST /api/can/send -- {"bus":0,"id":291,"dlc":8,"data":[...]} transmit request
+// - POST /api/cmd     -- {"cmd":"RELOAD_FILTERS"} etc, forwarded as a CMD packet
+//                         (see DOC/protocol.md for the filter-control grammar)
 // - WS   /ws          -- live CAN_FRAME/LOG_LINE broadcast for Gauges/Sniffer (Stage 3)
 class WebServerManager {
 public:

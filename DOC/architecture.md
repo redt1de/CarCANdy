@@ -8,8 +8,10 @@
         v
  [SN65HVD230] x3  --  Teensy 4.1
         |                 |
-        |          CANManager, Logging (SD CSV + Serial),
-        |          ConfigManager (JSON on SD), PluginManager
+        |          CANManager -> FilterManager (BUS,ID allow/deny/none)
+        |                 |         |
+        |          Logging (SD CSV + Serial), CommManager stream, PluginManager
+        |          ConfigManager (JSON on SD)
         |                 |
         |            CommManager
         |          (UARTClient | SPIClient)
@@ -33,6 +35,14 @@
 (SD card), and future GPIO-driven plugins (shift light, line lock, etc).
 Streams CAN frames and log lines to the ESP32 over the shared protocol so the
 web UI can show live data.
+
+**FilterManager** — software-side BUS,ID filtering (`allow`/`deny`/`none`,
+see `DOC/config.example.json`'s `filters` section and `DOC/filters.example.csv`),
+checked once in `CANManager` before a frame reaches logging, the ESP32
+stream, or any plugin -- there is exactly one filter point, not a
+per-consumer filter. The WebUI's Sniffer tab can temporarily override the
+mode (without touching saved config) or add/remove/reload entries live, all
+via `CMD` packets -- see `DOC/protocol.md`'s CMD grammar table.
 
 **ESP32** — bridges to the Teensy, hosts a WiFi access point, and serves the
 built WebUI bundle plus a small JSON API. Does not implement plugins or CAN
