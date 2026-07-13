@@ -22,6 +22,10 @@ void onCanFrame(const CarCANdy::CanFrame &frame) {
 }
 
 void setup() {
+  while (!Serial && millis() < 5000) { // <<<<<<<<<<<<<< REMOVE ME
+    ;
+  }
+
   Serial.begin(115200);
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
