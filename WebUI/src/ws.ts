@@ -1,7 +1,18 @@
 // Single shared WebSocket connection to the ESP32's /ws endpoint (see
 // ESP32/src/WebServerManager.cpp), so the Gauges and Sniffer pages don't
 // each open their own socket. Auto-reconnects on close/error.
-import type { WsMessage } from './types';
+import type { CanFrameMessage, WsMessage } from './types';
+
+// Wire shape for a batched flush (see WebServerManager::flushCanFrames())
+// -- the ESP32 batches CAN frames into one WS message every ~50ms instead
+// of one message per frame, since AsyncWebSocket silently drops messages
+// past its 32-deep per-client queue under real bus load. Unwrapped back
+// into individual CanFrameMessage dispatches below, so subscribers (the
+// Sniffer/Gauges pages) never need to know batching exists.
+interface CanFramesBatchMessage {
+  type: 'can_frames';
+  frames: Omit<CanFrameMessage, 'type'>[];
+}
 
 type MessageHandler = (msg: WsMessage) => void;
 type StatusHandler = (connected: boolean) => void;
@@ -27,8 +38,15 @@ function connect() {
 
   ws.onmessage = (event) => {
     try {
-      const msg = JSON.parse(event.data) as WsMessage;
-      messageHandlers.forEach((h) => h(msg));
+      const parsed = JSON.parse(event.data) as WsMessage | CanFramesBatchMessage;
+      if (parsed.type === 'can_frames') {
+        for (const frame of parsed.frames) {
+          const msg: CanFrameMessage = { type: 'can_frame', ...frame };
+          messageHandlers.forEach((h) => h(msg));
+        }
+        return;
+      }
+      messageHandlers.forEach((h) => h(parsed));
     } catch {
       // Ignore malformed frames rather than crashing the page.
     }

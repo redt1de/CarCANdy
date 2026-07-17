@@ -25,7 +25,7 @@ pio device monitor            # serial monitor (115200 baud, default USB Serial)
 - `GET  /api/config` — cached config JSON last fetched from the Teensy (503 if not yet fetched).
 - `POST /api/config` — forwards a new config JSON to the Teensy (fire-and-forget, see [../DOC/protocol.md](../DOC/protocol.md)).
 - `POST /api/can/send` — `{"bus":0,"id":291,"dlc":8,"data":[...]}`, forwarded as a CAN transmit request.
-- `WS   /ws` — broadcasts `{"type":"can_frame",...}` / `{"type":"log","msg":"..."}` as the Teensy reports them.
+- `WS   /ws` — broadcasts `{"type":"can_frames","frames":[...]}` (batched every ~50ms, see `WebServerManager::flushCanFrames()` and [../DOC/open-risks.md](../DOC/open-risks.md) #8) / `{"type":"log","msg":"..."}` as the Teensy reports them.
 
 ## Layout
 

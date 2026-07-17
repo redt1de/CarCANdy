@@ -108,3 +108,29 @@ enable), matching a previously bench-verified standalone sketch for this
 hardware. This went unnoticed through Stage 1/2 because nothing had tested
 receiving real, unsolicited bus traffic yet -- transmit and the ESP32 link
 worked fine without it.
+
+## 8. (Resolved) WebSocket CAN frame broadcast silently dropped almost everything under real load
+
+`WebServerManager` used to call `ws_.textAll()` once per `CAN_FRAME` packet
+received from the Teensy. Confirmed by reading `AsyncWebSocket.cpp`/`.h`:
+each client has a fixed `WS_MAX_QUEUED_MESSAGES` send queue (32 on ESP32),
+and `_queueMessage()` silently returns `false` (message discarded, not
+retried) once it's full. A live vehicle easily produces hundreds of CAN
+frames/sec across 3 buses -- far faster than WiFi can drain a 32-slot
+queue -- so almost every broadcast was being dropped, which looked like
+"the Sniffer page doesn't stream, it only updates in small chunks."
+
+Fixed by batching: `WebServerManager::queueCanFrame()` now buffers frames
+(capped at `kMaxBatch = 64`, dropping the excess on overflow -- the
+Teensy's SD card CSV remains the complete, lossless record regardless) and
+`loop()` flushes them as one `{"type":"can_frames","frames":[...]}` WS
+message every `kFlushIntervalMs = 50`, instead of one message per frame.
+This keeps WS sends at ~20/sec regardless of CAN bus load, comfortably
+under the queue cap. `WebUI/src/ws.ts` unwraps the batch back into
+individual `can_frame` message dispatches, so `SnifferPage`/`GaugesPage`
+never needed to change at all -- the batching is invisible above `ws.ts`.
+
+If bus load or plugin/consumer count ever grows enough that 64 frames over
+50ms isn't enough headroom, raise `kMaxBatch`/shorten `kFlushIntervalMs`
+first before reaching for anything more complex -- there's no evidence a
+fancier scheme is needed yet.

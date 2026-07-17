@@ -101,23 +101,61 @@ bool WebServerManager::begin() {
     return true;
 }
 
-void WebServerManager::broadcastCanFrame(const CanFrame& frame) {
+void WebServerManager::queueCanFrame(const CanFrame& frame) {
     if (ws_.count() == 0) {
+        return; // nobody listening -- don't bother buffering
+    }
+    if (pendingCount_ >= kMaxBatch) {
+        return; // batch already full for this interval -- drop rather than
+                // grow unbounded. The Teensy's SD card CSV remains the
+                // complete, lossless record regardless; this stream was
+                // only ever a live preview.
+    }
+    pendingFrames_[pendingCount_++] = frame;
+}
+
+void WebServerManager::loop() {
+    if (millis() - lastFlushMs_ < kFlushIntervalMs) {
         return;
     }
-    char hex[17];
-    const uint8_t dlc = frame.dlc > 8 ? 8 : frame.dlc;
-    for (uint8_t i = 0; i < dlc; ++i) {
-        snprintf(hex + i * 2, 3, "%02X", frame.data[i]);
-    }
-    hex[dlc * 2] = '\0';
+    lastFlushMs_ = millis();
+    flushCanFrames();
+}
 
-    char buf[160];
-    snprintf(buf, sizeof(buf),
-             "{\"type\":\"can_frame\",\"bus\":%u,\"id\":%lu,\"extended\":%s,\"rtr\":%s,\"dlc\":%u,\"data\":\"%s\",\"ts\":%lu}",
-             frame.bus, static_cast<unsigned long>(frame.id), frame.extended ? "true" : "false",
-             frame.rtr ? "true" : "false", dlc, hex, static_cast<unsigned long>(frame.timestampMs));
-    ws_.textAll(buf);
+void WebServerManager::flushCanFrames() {
+    if (pendingCount_ == 0 || ws_.count() == 0) {
+        pendingCount_ = 0;
+        return;
+    }
+
+    // One WS message per flush interval instead of one per frame -- see
+    // queueCanFrame()'s comment for why per-frame broadcasting silently
+    // drops almost everything under real bus load.
+    String out;
+    out.reserve(32 + pendingCount_ * 140);
+    out += "{\"type\":\"can_frames\",\"frames\":[";
+    for (size_t i = 0; i < pendingCount_; ++i) {
+        if (i > 0) {
+            out += ',';
+        }
+        const CanFrame& frame = pendingFrames_[i];
+        char hex[17];
+        const uint8_t dlc = frame.dlc > 8 ? 8 : frame.dlc;
+        for (uint8_t b = 0; b < dlc; ++b) {
+            snprintf(hex + b * 2, 3, "%02X", frame.data[b]);
+        }
+        hex[dlc * 2] = '\0';
+
+        char buf[160];
+        snprintf(buf, sizeof(buf), "{\"bus\":%u,\"id\":%lu,\"extended\":%s,\"rtr\":%s,\"dlc\":%u,\"data\":\"%s\",\"ts\":%lu}",
+                 frame.bus, static_cast<unsigned long>(frame.id), frame.extended ? "true" : "false",
+                 frame.rtr ? "true" : "false", dlc, hex, static_cast<unsigned long>(frame.timestampMs));
+        out += buf;
+    }
+    out += "]}";
+
+    ws_.textAll(out);
+    pendingCount_ = 0;
 }
 
 void WebServerManager::broadcastLogLine(const char* line) {

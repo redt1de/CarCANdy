@@ -99,7 +99,13 @@ void Logging::info(const char* msg) {
 }
 
 void Logging::logCanFrame(const CarCANdy::CanFrame& frame) {
-    Serial.printf("[CAN] bus=%u id=0x%03lX dlc=%u\n", frame.bus, frame.id, frame.dlc);
+    char hex[17];
+    const uint8_t dlc = frame.dlc > 8 ? 8 : frame.dlc;
+    for (uint8_t i = 0; i < dlc; ++i) {
+        snprintf(hex + i * 2, 3, "%02X", frame.data[i]);
+    }
+    hex[dlc * 2] = '\0';
+    Serial.printf("[CAN] bus=%u id=0x%03lX dlc=%u data=%s\n", frame.bus, frame.id, frame.dlc, hex);
 
     if (!sdReady_) {
         return;

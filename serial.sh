@@ -4,7 +4,8 @@ set -euo pipefail
 
 SESSION="serial"
 BAUD=115200
-ESP_PORT=$(find /dev/serial/by-id -name '*Espressif*' | head -n1)
+# ESP_PORT=$(find /dev/serial/by-id -name '*Espressif*' | head -n1)
+ESP_PORT=$(find /dev/serial/by-id -name '*Arduino*' | head -n1)
 TEENSY_PORT=$(find /dev/serial/by-id -name '*Teensy*' | head -n1)
 
 

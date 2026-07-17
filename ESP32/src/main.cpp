@@ -11,7 +11,7 @@ CommManager commManager("UART");
 WebServerManager webServerManager(commManager);
 
 void onCanFrame(const CarCANdy::CanFrame &frame) {
-  webServerManager.broadcastCanFrame(frame);
+  webServerManager.queueCanFrame(frame);
 }
 
 void onLogLine(const char *line) { webServerManager.broadcastLogLine(line); }
@@ -37,4 +37,7 @@ void setup() {
   }
 }
 
-void loop() { commManager.poll(); }
+void loop() {
+  commManager.poll();
+  webServerManager.loop();
+}
