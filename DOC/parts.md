@@ -5,20 +5,3 @@ nup2105lt1g - TVS Diode
 100nF Capacitor
 LTV-817S-TA - optocoupler
 
-ESP32 GPIO
-    |
-   100Ω
-    |
- Gate
-    |
-   47k
-    |
-   GND
-
-Drain ---- Relay ---- +12V
-           |
-         Flyback diode
-
-Source
-   |
-  GND
