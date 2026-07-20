@@ -13385,7 +13385,7 @@
 			)
 		)
 	)
-	(global_label "CAN1_L"
+	(global_label "CAN1_H"
 		(shape input)
 		(at 511.81 107.95 180)
 		(fields_autoplaced yes)
@@ -13397,7 +13397,7 @@
 		)
 		(uuid "ec0f787d-a908-4620-b30e-9c319a63f2e4")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 501.9305 107.95 0)
+			(at 501.6281 107.95 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -13500,7 +13500,7 @@
 			)
 		)
 	)
-	(global_label "CAN1_H"
+	(global_label "CAN1_L"
 		(shape input)
 		(at 511.81 113.03 180)
 		(fields_autoplaced yes)
@@ -13512,7 +13512,7 @@
 		)
 		(uuid "f7367c76-af09-49b4-97f3-e093ed046cf0")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 501.6281 113.03 0)
+			(at 501.9305 113.03 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
