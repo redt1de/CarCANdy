@@ -1,0 +1,36 @@
+# ICs
+*x3 NUP2105LT1G SOT23-3
+*x6 1N4148W D_SOD-123
+*x2 BAT54S SOT-23
+*x3 SN65HVD233DR SOIC127P599X175-8N
+*x3 IM02 RELAY_IM02TS (1-1462038-2 is parametric replacement, non bulk)
+*x3 AO3400A SOT-23
+*x3 LTV-357T 4-SOP
+*x3 JS202011CQN JS202011CQN (digikey alternative CL-SB-22C-02 cause its 12V)
+
+# Connectors
+!x1 8P8C_Shielded RJ45_RCH_RC01937 (https://www.amazon.com/FMHXG-Shielded-Network-Connector-Computer/dp/B0BRQ2R8HW/ref=sr_1_6?crid=2GEQB8RQVCWHQ&dib=eyJ2IjoiMSJ9.Q-POwNUS6T_F2msDLDG2IgVRH1ZqEfAfxAJ1eDClOmyue6DMlX76GyFEgrGLn0LqOWNdIH1j7GDnm7kQ2PPWu0mNpIWGYYUzZbWWI4tz4WfRYXN5SkiyO6LIsjD_GDPAzdvahi2KJ7wu-kQGix9wMZj7cczvntBxOikMDTzfMgxMggP4xPgiMO7yRaxBlxOveo6RlJL3qUb4hS2ngVgKTc2WGaFixyWNzU1hDLFSMkA.nJYRlCPJPkcdAawPXoiEQZNKuGUQC8xcx65U6gyzG4U&dib_tag=se&keywords=8p8c&qid=1784656503&sprefix=8p8c%2Caps%2C179&sr=8-6)
+!x1 Power JST_VH_S2P-VH_1x02_P3.96mm_Horizontal (https://www.amazon.com/pzsmocn-JST-VH-SMT-Housing-Connector-Terminal/dp/B089QR8G2D/ref=sr_1_9?crid=25W2LGBPY78K0&dib=eyJ2IjoiMSJ9.snB7CXaGBe1x_KQTmtak658PToOh2DpRLDJWcDra14Pn-FGBtUSbW-S0g3BGxixExssKGomrP4bqw7d57R8fNBO4EMTmCOiRoxHGT7Mlx8OmQK2YOetjLdNiPw2dffzxygkd8UCmVODaLymXfDRmfYjbxiQBBbwzglXycPP2yyDamvJflXIzXDKPSeKcSz0hI5ImY6LLVM3LJWmdHO2KloNQHDztLWLUnZzSy7aFv-U.rMqcHesQDqD0JqE3fevN6BU30bVmwe58nL49HagoJ3w&dib_tag=se&keywords=jst+vh+right+pcb+3+pin&qid=1784646803&sprefix=jst+vh+right+pcb+3+pin%2Caps%2C132&sr=8-9)
+!x3 Relays JST_VH_S3P-VH_1x03_P3.96mm_Horizontal (https://www.amazon.com/pzsmocn-JST-VH-SMT-Housing-Connector-Terminal/dp/B08F53M49D/ref=sr_1_4?crid=25W2LGBPY78K0&dib=eyJ2IjoiMSJ9.snB7CXaGBe1x_KQTmtak658PToOh2DpRLDJWcDra14Pn-FGBtUSbW-S0g3BGxixExssKGomrP4bqw7d57R8fNBO4EMTmCOiRoxHGT7Mlx8OmQK2YOetjLdNiPw2dffzxygkd8UCmVODaLymXfDRmfYjbxiQBBbwzglXycPP2yyDamvJflXIzXDKPSeKcSz0hI5ImY6LLVM3LJWmdHO2KloNQHDztLWLUnZzSy7aFv-U.rMqcHesQDqD0JqE3fevN6BU30bVmwe58nL49HagoJ3w&dib_tag=se&keywords=jst+vh+right+pcb+3+pin&qid=1784646803&sprefix=jst+vh+right+pcb+3+pin%2Caps%2C132&sr=8-4)
+!x3 3-pin 2.54mm pitch pin headers with jumpers (amazon)
+!x3 3-pin 2.00mm pitch pin headers with jumpers (amazon)
+!x2 Aux JST_PH_S4B-PH-K_1x04_P2.00mm_Horizontal  (https://www.amazon.com/Socket-Compatible-JST-PH-Connectors-Through-Hole/dp/B0BM492MMF/ref=sr_1_1_sspa?crid=5H2X2NRHBC59&dib=eyJ2IjoiMSJ9.VOTVhduErUS3ONKBrnPac-bvclbBVWGZ_RqYzeF4S1yv7QKh3AdHuvojf-brWJ7cd8xlGByUW_WEYSThPfQS8jBO8wW8ohKmwZWCRbMRFom91tMfHs7vk3gUVkzqDkY-pjl0GgiXLZKVF9CGPkslqAWR7yzz72o8MCMrbvB9aY39H10Ebk1kprd7AtTW7AfAnDNsCo8WedXzq97hmPoi1-b-6wjoqVjatE0qxgKTa3k.jD3p2Zi47FW-cabulCM-yTQXQiMkdxdVOR3RiIOlMXY&dib_tag=se&keywords=jst+ph+right+angle&qid=1784647136&sprefix=jst+ph+right%2Caps%2C170&sr=8-1-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&psc=1)
+!x2 ADCs JST_EH_S3B-EH_1x03_P2.50mm_Horizontal (https://www.amazon.com/sspa/click?ie=UTF8&spc=MToxOTIyMzc0ODI3OTk4Mzc4OjE3ODQ2NDcxODA6c3BfYXRmOjMwMTI4Mjg2Nzg5ODEwMjo6MDo6&url=%2FVOGOOPOI-Terminal-Housing-Connector-Adaptor%2Fdp%2FB0CH8G2XN9%2Fref%3Dsr_1_2_sspa%3Fcrid%3D3ALPH2352C2PQ%26dib%3DeyJ2IjoiMSJ9.erzjNSrM8KrmuDuh3gqoh6hOeOW0-Fn7zZMS03aLRWAHaa6WK-8KOC5HOjMJAr3PJvRd5hBVJu9mWcG1BuQB1bcLUVaLcEUl_tBhWEWh71IuhXwis59fttlLlYQp5ZIyvEnPfiSkhSZZ2IFkVmz3x0MDozSYRJ3k32pIlgDZVRlHgEiK0uJNYsqgxJQ8ZnCmh-Gxgd-QJi8HIviCwASeIImPUutAFrIle4krIGN5QAQ.YSGCB2DGhKUQb-7w4mnJXBWCWQdnVgbpincmMNr6me0%26dib_tag%3Dse%26keywords%3Djst%2Beh%2Bright%2Bangle%26qid%3D1784647180%26sprefix%3Djst%2Beh%2Bright%2Bangle%252Caps%252C152%26sr%3D8-2-spons%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9hdGY%26psc%3D1)
+!x3 Inputs JST_EH_S2B-EH_1x02_P2.50mm_Horizontal (^^ above kit ^^)
+
+
+# Caps and Resistors
+x3 120 R_0603_1608Metric_Pad0.98x0.95mm_HandSolder
+x3 10K R_0603_1608Metric_Pad0.98x0.95mm_HandSolder
+x3 2.2K R_0603_1608Metric_Pad0.98x0.95mm_HandSolder
+x3 10k R_0603_1608Metric_Pad0.98x0.95mm_HandSolder
+x2 22K R_0603_1608Metric_Pad0.98x0.95mm_HandSolder
+x2 33K R_0603_1608Metric_Pad0.98x0.95mm_HandSolder
+x3 100 R_0603_1608Metric_Pad0.98x0.95mm_HandSolder
+x3 47K R_0603_1608Metric_Pad0.98x0.95mm_HandSolder
+x5 100nF 0603 Capacitor (https://www.amazon.com/Cermant-Capacitor-Assorted-3-9pF-22uF-Electronic/dp/B09V9XH6YL/ref=sr_1_4?crid=1S1XPI2N7AR6P&dib=eyJ2IjoiMSJ9.dwSKzjdk5S_RZFNjjhOhu-oC1Kf35oWoQeK7I2YClyRE_600offI1FFUcnWVVzx7LqQiYVu_W9mNS00CbBIfIiGzjWVdbKc-qW52DxsDJGvRNBt7CfQ9rLPKOWGo6WSdnDK3zidBEGgedNCiTohjvlXVML0ri87AvaRkOIeKaKYGKfUYFoMEY24oscZBHzhVkk1MCFDuHYrkwUxwFBFtIGg5_P250yzLopwEGvNKY0w.DQqkW1TV_8wBI5-_y5o5EwTPQ3iuFGbUhhqzbkmGphg&dib_tag=se&keywords=0603%2Bcapacitor%2Bkit&qid=1784647255&sprefix=0603%2Bca%2Caps%2C158&sr=8-4&th=1)
+
+# Misc
+*x1 ESP32-C3_SUPERMINI_TH MODULE_ESP32-C3_SUPERMINI_TH (amazon)
+*x1 Teensy4.1 Teensy41 (amazon)
+*x1 12v-5v_mini_buck mini12v-5v_buck (amazon)

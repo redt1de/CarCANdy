@@ -21,6 +21,10 @@
 		},
 		{
 			"path": "CarCANdy-PCB"
+		},
+		{
+			"name": "round",
+			"path": "../../../Documents/PlatformIO/Projects/round"
 		}
 	],
 	"settings": {},
