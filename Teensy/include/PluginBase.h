@@ -3,6 +3,7 @@
 #include <ArduinoJson.h>
 
 class ConfigManager;
+class CANManager;
 
 // Base interface for all plugins (shift light, line lock, etc). Plugins are
 // always compiled in and registered unconditionally; enable/disable is a
@@ -13,7 +14,12 @@ public:
     virtual ~PluginBase() = default;
 
     virtual const char* getName() const = 0;
-    virtual void init(ConfigManager& config) {}
+
+    // canManager is provided so a plugin can transmit (canManager.sendFrame())
+    // in response to config/CAN events. CANManager::sendFrame() itself
+    // enforces each bus's configured "transmit" mode, so this doesn't hand a
+    // plugin any more TX authority than the user's own bus config allows.
+    virtual void init(ConfigManager& config, CANManager& canManager) {}
     virtual void loop() {}
     virtual void onCanFrame(const CarCANdy::CanFrame& frame) {}
 

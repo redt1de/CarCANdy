@@ -1,0 +1,1183 @@
+{
+  "version": 1,
+  "vehicle": {
+    "make": "Ford",
+    "model": "Mustang GT",
+    "year": 2015,
+    "trim": "Premium",
+    "engine": "5.0L Coyote",
+    "transmission": "6R80"
+  },
+  "frames": [
+    {
+      "id_dec": 129,
+      "id_hex": "0x081",
+      "bus": "",
+      "signals": [
+        {
+          "name": "Steering Wheel Buttons",
+          "byte": 1,
+          "type": "enum",
+          "enumeration": {
+            "1": "Down",
+            "8": "Up",
+            "16": "OK"
+          }
+        },
+        {
+          "name": "Steering Wheel Menu",
+          "byte": 2,
+          "type": "enum",
+          "enumeration": {
+            "1": "Settings",
+            "2": "Music",
+            "4": "Navigation",
+            "64": "Back"
+          }
+        }
+      ]
+    },
+    {
+      "id_dec": 131,
+      "id_hex": "0x083",
+      "bus": "",
+      "signals": [
+        {
+          "name": "Turn Signals",
+          "byte": 1,
+          "type": "enum",
+          "enumeration": {
+            "17": "Left",
+            "33": "Right"
+          }
+        },
+        {
+          "name": "Cruise / Lane Assist",
+          "byte": 3,
+          "type": "enum",
+          "enumeration": {
+            "32": "Cruise Cancel",
+            "64": "Lane Tracking Button"
+          }
+        },
+        {
+          "name": "Cruise Speed",
+          "byte": 4,
+          "type": "enum",
+          "enumeration": {
+            "8": "Speed Up",
+            "16": "Speed Down"
+          }
+        },
+        {
+          "name": "Lighting / Cruise",
+          "byte": 5,
+          "type": "enum",
+          "enumeration": {
+            "12": "Flash High Beam",
+            "20": "High Beam",
+            "64": "Cruise On/Off"
+          }
+        }
+      ]
+    },
+    {
+      "id_dec": 560,
+      "id_hex": "0x230",
+      "bus": "",
+      "signals": [
+        {
+          "name": "Gear Position",
+          "byte": 2,
+          "type": "enum",
+          "enumeration": {
+            "0": "Park",
+            "2": "Reverse",
+            "4": "Neutral",
+            "6": "Drive",
+            "8": "Sport"
+          }
+        }
+      ]
+    },
+    {
+      "id_dec": 673,
+      "id_hex": "0x2A1",
+      "bus": "",
+      "signals": [
+        {
+          "name": "Media Controls",
+          "byte": 1,
+          "type": "enum",
+          "enumeration": {
+            "50": "Previous Track",
+            "51": "Next Track",
+            "68": "Mute",
+            "253": "Volume Up",
+            "254": "Volume Down"
+          }
+        }
+      ]
+    },
+    {
+      "id_dec": 947,
+      "id_hex": "0x3B3",
+      "bus": "",
+      "signals": [
+        {
+          "name": "Headlight Status",
+          "byte": 1,
+          "type": "enum",
+          "enumeration": {
+            "64": "Lights Off",
+            "68": "Lights On"
+          }
+        },
+        {
+          "name": "Hazard Lights",
+          "byte": 2,
+          "type": "enum",
+          "enumeration": {
+            "136": "Off",
+            "137": "On",
+            "138": "On"
+          }
+        },
+        {
+          "name": "Instrument Brightness",
+          "byte": 4,
+          "type": "range",
+          "range": {
+            "lights_off": "1-12",
+            "lights_on": "13-18"
+          }
+        }
+      ]
+    },
+    {
+      "id_dec": 963,
+      "id_hex": "0x3C3",
+      "bus": "",
+      "signals": [
+        {
+          "name": "Door Status",
+          "byte": 2,
+          "type": "enum",
+          "enumeration": {
+            "8": "Door Open",
+            "12": "All Doors Closed"
+          }
+        }
+      ]
+    },
+    {
+      "id_dec": 1068,
+      "id_hex": "0x42C",
+      "bus": "",
+      "signals": [
+        {
+          "name": "Engine Running",
+          "byte": 2,
+          "type": "enum",
+          "enumeration": {
+            "0": "Running",
+            "2": "Off"
+          },
+          "notes": "Unverified"
+        }
+      ]
+    },
+    {
+      "id_dec": 1071,
+      "id_hex": "0x42F",
+      "bus": "",
+      "signals": [
+        {
+          "name": "Engine RPM",
+          "bytes": [
+            7,
+            8
+          ],
+          "type": "unknown",
+          "notes": "Formula unknown; engine off = 0"
+        }
+      ]
+    },
+    {
+      "id_dec": 1200,
+      "id_hex": "0x4B0",
+      "bus": "",
+      "signals": [
+        {
+          "name": "Brake Pedal Position",
+          "byte": 6,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "id_dec": 118,
+      "id_hex": "0x076",
+      "bus": "HS1 & HS3",
+      "signals": [
+        {
+          "name": "Steering",
+          "bytes": [
+            0,
+            1
+          ],
+          "type": "unknown"
+        },
+        {
+          "name": "Vehicle Speed",
+          "bytes": [
+            5,
+            6
+          ],
+          "type": "unknown",
+          "notes": "(b5<<8 + b6) / 100"
+        }
+      ]
+    },
+    {
+      "id_dec": 119,
+      "id_hex": "0x077",
+      "bus": "HS1 & HS3",
+      "signals": [
+        {
+          "name": "Vehicle Speed",
+          "bytes": [
+            0,
+            1
+          ],
+          "type": "unknown"
+        },
+        {
+          "name": "Lateral G Force",
+          "bytes": [
+            2,
+            3
+          ],
+          "type": "unknown",
+          "notes": "((b2 & 31) << 8 + b3 - 2048) / 200 (m/s²)"
+        }
+      ]
+    },
+    {
+      "id_dec": 125,
+      "id_hex": "0x07D",
+      "bus": "HS1",
+      "signals": [
+        {
+          "name": "Brake Pressure (Pedal)",
+          "bytes": [
+            0,
+            1
+          ],
+          "type": "unknown"
+        },
+        {
+          "name": "Brake Pressure (Traction Control)",
+          "bytes": [
+            3,
+            4
+          ],
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "id_dec": 130,
+      "id_hex": "0x082",
+      "bus": "HS1",
+      "signals": [
+        {
+          "name": "Steering",
+          "byte": 0,
+          "type": "unknown",
+          "notes": "Noisy"
+        },
+        {
+          "name": "Current Consumption",
+          "bytes": [
+            2,
+            3
+          ],
+          "type": "unknown"
+        },
+        {
+          "name": "Voltage",
+          "byte": 4,
+          "type": "unknown",
+          "notes": "b4 / 20 + 6 V"
+        },
+        {
+          "name": "Steering Mode",
+          "byte": 6,
+          "type": "enum",
+          "enumeration": {
+            "64": "Normal",
+            "68": "Sport",
+            "72": "Comfort"
+          }
+        }
+      ]
+    },
+    {
+      "id_dec": 132,
+      "id_hex": "0x084",
+      "bus": "HS1",
+      "signals": [
+        {
+          "name": "Year",
+          "byte": 0,
+          "type": "unknown"
+        },
+        {
+          "name": "Day Of Year",
+          "bytes": [
+            2,
+            3
+          ],
+          "type": "unknown"
+        },
+        {
+          "name": "Second",
+          "byte": 4,
+          "type": "unknown"
+        },
+        {
+          "name": "Minute",
+          "byte": 5,
+          "type": "unknown"
+        },
+        {
+          "name": "Hour",
+          "byte": 6,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "id_dec": 133,
+      "id_hex": "0x085",
+      "bus": "HS1",
+      "signals": [
+        {
+          "name": "Steering",
+          "bytes": [
+            0,
+            1
+          ],
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "id_dec": 146,
+      "id_hex": "0x092",
+      "bus": "HS1",
+      "signals": [
+        {
+          "name": "Lateral G Force",
+          "bytes": [
+            0,
+            1
+          ],
+          "type": "unknown"
+        },
+        {
+          "name": "Longitudinal G Force",
+          "bytes": [
+            2,
+            3
+          ],
+          "type": "unknown"
+        },
+        {
+          "name": "Vertical G Force",
+          "bytes": [
+            4,
+            5
+          ],
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "id_dec": 265,
+      "id_hex": "0x109",
+      "bus": "HS3",
+      "signals": [
+        {
+          "name": "Engine RPM",
+          "bytes": [
+            0,
+            1
+          ],
+          "type": "unknown",
+          "notes": "(b0<<8 + b1) / 4"
+        },
+        {
+          "name": "Gearbox Mode",
+          "byte": 2,
+          "type": "enum",
+          "enumeration": {
+            "1": "Park",
+            "14": "Engine Start",
+            "17": "Reverse",
+            "33": "Neutral",
+            "49": "Drive",
+            "65": "Sport"
+          }
+        },
+        {
+          "name": "Vehicle Speed",
+          "bytes": [
+            4,
+            5
+          ],
+          "type": "unknown",
+          "notes": "(b4<<8 + b5) / 100"
+        },
+        {
+          "name": "Reverse Gear",
+          "byte": 6,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "id_dec": 342,
+      "id_hex": "0x156",
+      "bus": "HS1 & HS3",
+      "signals": [
+        {
+          "name": "Coolant Temperature",
+          "byte": 0,
+          "type": "unknown",
+          "notes": "b0 - 60 °C"
+        },
+        {
+          "name": "Oil Temperature",
+          "byte": 1,
+          "type": "unknown",
+          "notes": "b1 - 60 °C"
+        }
+      ]
+    },
+    {
+      "id_dec": 359,
+      "id_hex": "0x167",
+      "bus": "HS1 & HS3",
+      "signals": [
+        {
+          "name": "Engine State",
+          "byte": 0,
+          "type": "enum",
+          "enumeration": {
+            "0": "Off",
+            "32": "Starting",
+            "114": "Running"
+          }
+        },
+        {
+          "name": "Engine Load / Torque",
+          "bytes": [
+            1,
+            2
+          ],
+          "type": "unknown"
+        },
+        {
+          "name": "MAP",
+          "bytes": [
+            5,
+            6
+          ],
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "id_dec": 369,
+      "id_hex": "0x171",
+      "bus": "HS1 & HS3",
+      "signals": [
+        {
+          "name": "Current Gear",
+          "byte": 0,
+          "type": "enum",
+          "notes": "Bit0=manual mode, Bit1=failed shift",
+          "enumeration": {
+            "20": "Park/Neutral",
+            "36": "1",
+            "52": "2",
+            "68": "3",
+            "84": "4",
+            "100": "5"
+          }
+        },
+        {
+          "name": "Gearbox Mode",
+          "byte": 1,
+          "type": "enum",
+          "enumeration": {
+            "0": "Park",
+            "32": "Reverse",
+            "64": "Neutral",
+            "96": "Drive",
+            "128": "Sport"
+          }
+        }
+      ]
+    },
+    {
+      "id_dec": 376,
+      "id_hex": "0x178",
+      "bus": "HS1 & HS3",
+      "signals": [
+        {
+          "name": "Unknown Graph 1",
+          "bytes": [
+            2,
+            3
+          ],
+          "type": "unknown"
+        },
+        {
+          "name": "Unknown Graph 2",
+          "byte": 5,
+          "type": "unknown"
+        },
+        {
+          "name": "Unknown Graph 3",
+          "byte": 6,
+          "type": "unknown"
+        },
+        {
+          "name": "Unknown Graph 4",
+          "byte": 7,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "id_dec": 377,
+      "id_hex": "0x179",
+      "bus": "HS1 & HS3",
+      "signals": [
+        {
+          "name": "Unknown Growing Value",
+          "bytes": [
+            5,
+            6
+          ],
+          "type": "unknown"
+        },
+        {
+          "name": "Unknown Saw Graph",
+          "byte": 7,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "id_dec": 512,
+      "id_hex": "0x200",
+      "bus": "HS1",
+      "signals": [
+        {
+          "name": "Unknown",
+          "bytes": [
+            2,
+            3
+          ],
+          "type": "unknown"
+        },
+        {
+          "name": "Throttle Position",
+          "bytes": [
+            4,
+            5
+          ],
+          "type": "unknown",
+          "notes": "Possibly throttle position"
+        }
+      ]
+    },
+    {
+      "id_dec": 516,
+      "id_hex": "0x204",
+      "bus": "HS1 & HS3",
+      "signals": [
+        {
+          "name": "Accelerator Pedal",
+          "bytes": [
+            0,
+            1
+          ],
+          "type": "unknown",
+          "notes": "((b0 & 3) << 8 + b1) / 10"
+        },
+        {
+          "name": "RPM Smoothed",
+          "bytes": [
+            3,
+            4
+          ],
+          "type": "unknown",
+          "notes": "(b3<<8 + b4) * 2"
+        }
+      ]
+    },
+    {
+      "id_dec": 522,
+      "id_hex": "0x20A",
+      "bus": "HS3",
+      "signals": [
+        {
+          "name": "Drive Mode",
+          "byte": 0,
+          "type": "enum",
+          "enumeration": {
+            "1": "Normal",
+            "17": "Sport/Track",
+            "33": "Snow"
+          }
+        },
+        {
+          "name": "Gear Indicator",
+          "byte": 1,
+          "type": "unknown",
+          "notes": "Represents current gear; bit7 and bit2 change during shifts."
+        }
+      ]
+    },
+    {
+      "id_dec": 531,
+      "id_hex": "0x213",
+      "bus": "HS1 & HS3",
+      "signals": [
+        {
+          "name": "Traction Control Brake Value",
+          "byte": 1,
+          "type": "unknown"
+        },
+        {
+          "name": "Traction Control Active",
+          "byte": 2,
+          "type": "unknown"
+        },
+        {
+          "name": "Traction Control Braking",
+          "byte": 3,
+          "type": "unknown"
+        },
+        {
+          "name": "Vehicle Stopped Flag",
+          "byte": 4,
+          "type": "unknown"
+        },
+        {
+          "name": "Longitudinal G Force",
+          "bytes": [
+            5,
+            6
+          ],
+          "type": "unknown",
+          "notes": "((b5 & 3)<<8 + b6 - 512) / 28"
+        }
+      ]
+    },
+    {
+      "id_dec": 534,
+      "id_hex": "0x216",
+      "bus": "HS1 & HS3",
+      "signals": [
+        {
+          "name": "Unknown Saw Graph",
+          "bytes": [
+            0,
+            7
+          ],
+          "type": "unknown",
+          "notes": "Frequency correlates with speed."
+        }
+      ]
+    },
+    {
+      "id_dec": 535,
+      "id_hex": "0x217",
+      "bus": "HS1",
+      "signals": [
+        {
+          "name": "Left Front Wheel Speed",
+          "bytes": [
+            0,
+            1
+          ],
+          "type": "unknown",
+          "notes": "(b0<<8+b1)/100"
+        },
+        {
+          "name": "Right Front Wheel Speed",
+          "bytes": [
+            2,
+            3
+          ],
+          "type": "unknown"
+        },
+        {
+          "name": "Left Rear Wheel Speed",
+          "bytes": [
+            4,
+            5
+          ],
+          "type": "unknown"
+        },
+        {
+          "name": "Right Rear Wheel Speed",
+          "bytes": [
+            6,
+            7
+          ],
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "id_dec": 578,
+      "id_hex": "0x242",
+      "bus": "HS1",
+      "signals": [
+        {
+          "name": "Unknown Current",
+          "bytes": [
+            2,
+            3
+          ],
+          "type": "unknown"
+        },
+        {
+          "name": "Voltage",
+          "byte": 4,
+          "type": "unknown",
+          "notes": "b4 / 16 V"
+        }
+      ]
+    },
+    {
+      "id_dec": 787,
+      "id_hex": "0x313",
+      "bus": "HS3",
+      "signals": [
+        {
+          "name": "Odometer?",
+          "byte": 5,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "id_dec": 789,
+      "id_hex": "0x315",
+      "bus": "HS3",
+      "signals": [
+        {
+          "name": "Acceleration Inertia",
+          "bytes": [
+            6,
+            7
+          ],
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "id_dec": 792,
+      "id_hex": "0x318",
+      "bus": "HS3",
+      "signals": [
+        {
+          "name": "Fuel Level?",
+          "bytes": [
+            5,
+            6
+          ],
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "id_dec": 806,
+      "id_hex": "0x326",
+      "bus": "HS1",
+      "signals": [
+        {
+          "name": "Climate Control",
+          "bytes": [
+            0,
+            7
+          ],
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "id_dec": 817,
+      "id_hex": "0x331",
+      "bus": "HS1 & HS3",
+      "signals": [
+        {
+          "name": "Unknown Growing Value",
+          "bytes": [
+            2,
+            3
+          ],
+          "type": "unknown"
+        },
+        {
+          "name": "Ambient Lighting Status",
+          "byte": 7,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "id_dec": 909,
+      "id_hex": "0x38D",
+      "bus": "HS1 & HS3",
+      "signals": [
+        {
+          "name": "Alternator?",
+          "byte": 4,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "id_dec": 936,
+      "id_hex": "0x3A8",
+      "bus": "HS1",
+      "signals": [
+        {
+          "name": "Steering",
+          "bytes": [
+            2,
+            3
+          ],
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "id_dec": 938,
+      "id_hex": "0x3AA",
+      "bus": "HS1 & HS3",
+      "signals": [
+        {
+          "name": "Unknown Engine Start Flag",
+          "byte": 1,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "id_dec": 946,
+      "id_hex": "0x3B2",
+      "bus": "HS3",
+      "signals": [
+        {
+          "name": "Lighting Status",
+          "bytes": [
+            0,
+            7
+          ],
+          "type": "unknown",
+          "notes": "Appears to mirror frame 0x3B3."
+        }
+      ]
+    },
+    {
+      "id_dec": 949,
+      "id_hex": "0x3B5",
+      "bus": "HS1 & HS3",
+      "signals": [
+        {
+          "name": "Front Left Tire Pressure",
+          "byte": 1,
+          "type": "unknown",
+          "notes": "kPa"
+        },
+        {
+          "name": "Front Right Tire Pressure",
+          "byte": 3,
+          "type": "unknown"
+        },
+        {
+          "name": "Rear Right Tire Pressure",
+          "byte": 5,
+          "type": "unknown"
+        },
+        {
+          "name": "Rear Left Tire Pressure",
+          "byte": 7,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "id_dec": 968,
+      "id_hex": "0x3C8",
+      "bus": "HS1",
+      "signals": [
+        {
+          "name": "MyColor Red",
+          "byte": 0,
+          "type": "unknown"
+        },
+        {
+          "name": "Drive Mode",
+          "byte": 2,
+          "type": "enum",
+          "enumeration": {
+            "0": "Normal",
+            "1": "Sport",
+            "2": "Snow",
+            "3": "Track"
+          }
+        },
+        {
+          "name": "MyColor Green",
+          "byte": 4,
+          "type": "unknown"
+        },
+        {
+          "name": "MyColor Blue",
+          "byte": 5,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "id_dec": 976,
+      "id_hex": "0x3D0",
+      "bus": "HS3",
+      "signals": [
+        {
+          "name": "Unknown Counter",
+          "bytes": [
+            2,
+            3
+          ],
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "id_dec": 1034,
+      "id_hex": "0x40A",
+      "bus": "HS1 & HS3",
+      "signals": [
+        {
+          "name": "VIN",
+          "bytes": [
+            0,
+            7
+          ],
+          "type": "unknown",
+          "notes": "VIN transmitted over three frames when b0 = 0xC1."
+        }
+      ]
+    },
+    {
+      "id_dec": 1045,
+      "id_hex": "0x415",
+      "bus": "HS1 & HS3",
+      "signals": [
+        {
+          "name": "Vehicle Speed",
+          "bytes": [
+            0,
+            1
+          ],
+          "type": "unknown",
+          "notes": "(b0<<8+b1)/100"
+        },
+        {
+          "name": "Unknown Saw Graph",
+          "bytes": [
+            2,
+            3
+          ],
+          "type": "unknown"
+        },
+        {
+          "name": "Unknown Graph",
+          "bytes": [
+            6,
+            7
+          ],
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "id_dec": 1046,
+      "id_hex": "0x416",
+      "bus": "HS1 & HS3",
+      "signals": [
+        {
+          "name": "Brake Pedal",
+          "byte": 0,
+          "type": "unknown"
+        },
+        {
+          "name": "Automatic Braking",
+          "byte": 1,
+          "type": "unknown"
+        },
+        {
+          "name": "Traction Control Mode",
+          "byte": 5,
+          "type": "enum",
+          "enumeration": {
+            "0": "TC On",
+            "8": "TC Off",
+            "24": "Advanced TC Off"
+          }
+        }
+      ]
+    },
+    {
+      "id_dec": 1057,
+      "id_hex": "0x421",
+      "bus": "HS1 & HS3",
+      "signals": [
+        {
+          "name": "Unknown Electrical Value 1",
+          "byte": 2,
+          "type": "unknown"
+        },
+        {
+          "name": "Unknown Electrical Value 2",
+          "byte": 6,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "id_dec": 1069,
+      "id_hex": "0x42D",
+      "bus": "HS1 & HS3",
+      "signals": [
+        {
+          "name": "Unknown Electrical Value",
+          "byte": 2,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "id_dec": 1085,
+      "id_hex": "0x43D",
+      "bus": "HS1",
+      "signals": [
+        {
+          "name": "Unknown RPM Related Value",
+          "byte": 2,
+          "type": "unknown"
+        },
+        {
+          "name": "Unknown RPM Related Value",
+          "byte": 3,
+          "type": "unknown"
+        }
+      ]
+    },
+    {
+      "id_dec": 1086,
+      "id_hex": "0x43E",
+      "bus": "HS1 & HS3",
+      "signals": [
+        {
+          "name": "Unknown Opposing Value",
+          "byte": 3,
+          "type": "unknown"
+        },
+        {
+          "name": "Engine Load",
+          "bytes": [
+            5,
+            6
+          ],
+          "type": "unknown",
+          "notes": "(b5<<8+b6)/72 - 140 %"
+        }
+      ]
+    },
+    {
+      "id_dec": 76,
+      "id_hex": "0x04C",
+      "bus": "",
+      "signals": [
+        {
+          "name": "Airbag Indicator",
+          "byte": 0,
+          "type": "enum",
+          "enumeration": {
+            "0x0_": "Off",
+            "0x4_": "On",
+            "0x8_": "Flashing"
+          }
+        },
+        {
+          "name": "Seatbelt Indicator",
+          "byte": 1,
+          "type": "enum",
+          "enumeration": {
+            "0x00": "No Icon",
+            "0xAF": "Driver & Passenger Unbuckled",
+            "0x5F": "Driver & Passenger Buckled",
+            "0x6F": "Driver Buckled",
+            "0x9F": "Passenger Buckled"
+          }
+        }
+      ]
+    },
+    {
+      "id_dec": 1072,
+      "id_hex": "0x430",
+      "bus": "",
+      "signals": [
+        {
+          "name": "Odometer",
+          "bytes": [
+            1,
+            2,
+            3
+          ],
+          "type": "unknown",
+          "notes": "Odometer value in kilometers. Cluster ignores arbitrary values unless they are close to the programmed mileage."
+        }
+      ]
+    },
+    {
+      "id_dec": 1073,
+      "id_hex": "0x431",
+      "bus": "",
+      "signals": [
+        {
+          "name": "Transmission Warning",
+          "bytes": [
+            0,
+            7
+          ],
+          "type": "unknown",
+          "notes": "Controls transmission warning messages including Adaptive Mode, Indicator Mode, Warming Up, and Adjusted."
+        }
+      ]
+    }
+  ]
+}

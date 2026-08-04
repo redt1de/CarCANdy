@@ -85,8 +85,17 @@ SPI2	   | 43   |	42	 | 45	| 44 (or any GPIO)
 
 Teensy 4.1 built-in SDIO slot — no extra wiring.
 
-## Future GPIO (buttons / switches / shift light / gauges)
+## AUX ports (buttons / switches / shift light / gauges)
 
-| Teensy Pin | Function | Wire Color | Notes |
-|------------|----------|------------|-------|
-| ?          |          |            |       |
+2 auxiliary ports, each broken out with 5V, GND, and 2 signal pins. Both
+signal pins on both ports support digital in/out and PWM; each pair also
+doubles as one Teensy hardware UART; AUX2's pair is additionally wired to
+the ADC (A10/A11). See `Teensy/include/AuxPorts.h` for named constants
+plugins should use instead of hardcoding these pin numbers.
+
+| Port | Teensy Pin | Function              | Notes                          |
+|------|------------|------------------------|---------------------------------|
+| AUX1 | 28         | digital, PWM, UART RX  | Serial7 RX                     |
+| AUX1 | 29         | digital, PWM, UART TX  | Serial7 TX                     |
+| AUX2 | 24         | digital, PWM, UART TX, analog (A10) | Serial6 TX; currently driving the shift light neopixel strip |
+| AUX2 | 25         | digital, PWM, UART RX, analog (A11) | Serial6 RX                     |

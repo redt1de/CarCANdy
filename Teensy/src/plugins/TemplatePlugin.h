@@ -1,4 +1,5 @@
 #pragma once
+#include "CANManager.h"
 #include "ConfigManager.h"
 #include "PluginBase.h"
 #include <ArduinoJson.h>
@@ -51,10 +52,16 @@ public:
   // this plugin's defaults in -- these keys are guaranteed present, so no
   // `| fallback` is needed here (and shouldn't be: keep the actual default
   // *values* only in setDefaultConfig() above, or the two can drift).
-  void init(ConfigManager &config) override {
+  //
+  // canManager_ is stashed as a pointer (not a reference -- this plugin
+  // instance is default-constructed before init() runs, and references
+  // can't be assigned after construction) so loop()/onCanFrame() can call
+  // canManager_->sendFrame() later if this plugin needs to transmit.
+  void init(ConfigManager &config, CANManager &canManager) override {
     JsonObjectConst cfg = config.pluginConfig(getName());
     exampleThreshold_ = cfg["exampleThreshold"];
     exampleEnabled_ = cfg["exampleEnabled"];
+    canManager_ = &canManager;
   }
 
   // Called every main loop iteration, but only while this plugin is
@@ -62,6 +69,17 @@ public:
   // time-based, like driving an output on an interval.
   void loop() override {
     // TODO: your periodic logic here.
+
+    // Example: transmit a frame on bus 1. sendFrame() only actually sends
+    // if bus 1 is configured with mode:"transmit" in config.json -- it's a
+    // no-op (returns false) otherwise, so this can't override the user's
+    // own bus config.
+    // CarCANdy::CanFrame frame{};
+    // frame.bus = 1;
+    // frame.id = 0x123;
+    // frame.dlc = 8;
+    // frame.data[0] = 0xAA;
+    // canManager_->sendFrame(frame.bus, frame);
   }
 
   // Called for every CAN frame received on any enabled bus, but only
@@ -78,4 +96,5 @@ private:
   // whatever your plugin actually needs.
   uint16_t exampleThreshold_ = 100;
   bool exampleEnabled_ = true;
+  CANManager *canManager_ = nullptr;
 };

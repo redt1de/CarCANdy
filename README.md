@@ -1,23 +1,17 @@
 # CarCANdy
 
-A CAN bus sniffing/analysis/control tool for a 2015 Ford Mustang GT, built on
-a Teensy 4.1 (3x SN65HVD230 CAN transceivers) bridged to an ESP32 that
-hosts a WiFi AP and a web UI.
 
-See [plan.md](plan.md) for the original design goals and
-[DOC/architecture.md](DOC/architecture.md) for how the pieces fit together.
+# SN65HVD233DR Mode select pin (Rs): 
+    high speed mode:    JP 2->1 and solder RS
+    slope control mode: JP 2->1 and open RS
+    low power mode:     JP 2->3
 
-## Layout
 
-- [Teensy/](Teensy/) — PlatformIO project for the Teensy 4.1
-- [ESP32/](ESP32/) — PlatformIO project for the ESP32
-- [WebUI/](WebUI/) — React + Vite frontend
-- [Shared/](Shared/) — protocol headers shared by both firmware projects
-- [DOC/](DOC/) — notes, pinouts, protocol writeup, open risks
+# Aux Ports
+    AUX1: digital, UART,PWM
+        28: RX,D28
+        29: TX,D28
 
-## Status
-
-Initial scaffolding — both firmware projects build clean and the WebUI
-serves its 5 tabs, but most logic is still `TODO`. See
-[DOC/open-risks.md](DOC/open-risks.md) for known unresolved issues, notably
-Teensy SPI slave mode.
+    AUX2: digital,analog,UART,PWM
+        24: TX,D24,A10
+        25: RX,D25,A11

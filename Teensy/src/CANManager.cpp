@@ -61,8 +61,8 @@ void CANManager::begin() {
   auto bus1 = config_.canBus(1);
   busEnabled_[1] = bus1.enabled;
   busTransmitAllowed_[1] = strcmp(bus1.mode, "transmit") == 0;
-  Serial.printf("[CANManager] bus1 enabled=%d baud=%lu mode=%s\n",
-                bus1.enabled, bus1.baud, bus1.mode);
+  Serial.printf("[CANManager] bus1 enabled=%d baud=%lu mode=%s\n", bus1.enabled,
+                bus1.baud, bus1.mode);
   if (bus1.enabled) {
     can1_.begin();
     // LISTEN_ONLY unless the bus is configured for transmit: a normal (TX)
@@ -72,8 +72,7 @@ void CANManager::begin() {
     // bench setups), that ACK attempt never reaches the bus and shows up
     // as a BIT0 error on every reception. LISTEN_ONLY tells the controller
     // to never drive the bus at all, matching read-only wiring.
-    can1_.setBaudRate(bus1.baud,
-                       busTransmitAllowed_[1] ? TX : LISTEN_ONLY);
+    can1_.setBaudRate(bus1.baud, busTransmitAllowed_[1] ? TX : LISTEN_ONLY);
     // setMaxMB()+enableFIFO()+enableFIFOInterrupt() are required for RX to
     // actually work: begin()'s default (non-FIFO) mailbox setup only
     // enables interrupts on the TX half of mailboxes, so without FIFO mode
@@ -88,12 +87,11 @@ void CANManager::begin() {
   auto bus2 = config_.canBus(2);
   busEnabled_[2] = bus2.enabled;
   busTransmitAllowed_[2] = strcmp(bus2.mode, "transmit") == 0;
-  Serial.printf("[CANManager] bus2 enabled=%d baud=%lu mode=%s\n",
-                bus2.enabled, bus2.baud, bus2.mode);
+  Serial.printf("[CANManager] bus2 enabled=%d baud=%lu mode=%s\n", bus2.enabled,
+                bus2.baud, bus2.mode);
   if (bus2.enabled) {
     can2_.begin();
-    can2_.setBaudRate(bus2.baud,
-                       busTransmitAllowed_[2] ? TX : LISTEN_ONLY);
+    can2_.setBaudRate(bus2.baud, busTransmitAllowed_[2] ? TX : LISTEN_ONLY);
     can2_.setMaxMB(kMaxMailboxes);
     can2_.enableFIFO();
     can2_.enableFIFOInterrupt();
@@ -103,12 +101,11 @@ void CANManager::begin() {
   auto bus3 = config_.canBus(3);
   busEnabled_[3] = bus3.enabled;
   busTransmitAllowed_[3] = strcmp(bus3.mode, "transmit") == 0;
-  Serial.printf("[CANManager] bus3 enabled=%d baud=%lu mode=%s\n",
-                bus3.enabled, bus3.baud, bus3.mode);
+  Serial.printf("[CANManager] bus3 enabled=%d baud=%lu mode=%s\n", bus3.enabled,
+                bus3.baud, bus3.mode);
   if (bus3.enabled) {
     can3_.begin();
-    can3_.setBaudRate(bus3.baud,
-                       busTransmitAllowed_[3] ? TX : LISTEN_ONLY);
+    can3_.setBaudRate(bus3.baud, busTransmitAllowed_[3] ? TX : LISTEN_ONLY);
     can3_.setMaxMB(kMaxMailboxes);
     can3_.enableFIFO();
     can3_.enableFIFOInterrupt();
@@ -127,12 +124,12 @@ void CANManager::loop() {
     lastDiagMs = now;
     CAN_error_t err;
     can1_.error(err, false);
-    Serial.printf("[CANManager] bus1 diag state=%s rx_err=%u tx_err=%u "
-                  "rx_queue=%lu ACK=%d CRC=%d STF=%d FRM=%d BIT0=%d BIT1=%d\n",
-                  err.state, err.RX_ERR_COUNTER, err.TX_ERR_COUNTER,
-                  (unsigned long)can1_.getRXQueueCount(), err.ACK_ERR,
-                  err.CRC_ERR, err.STF_ERR, err.FRM_ERR, err.BIT0_ERR,
-                  err.BIT1_ERR);
+    // Serial.printf("[CANManager] bus1 diag state=%s rx_err=%u tx_err=%u "
+    //               "rx_queue=%lu ACK=%d CRC=%d STF=%d FRM=%d BIT0=%d
+    //               BIT1=%d\n", err.state, err.RX_ERR_COUNTER,
+    //               err.TX_ERR_COUNTER, (unsigned long)can1_.getRXQueueCount(),
+    //               err.ACK_ERR, err.CRC_ERR, err.STF_ERR, err.FRM_ERR,
+    //               err.BIT0_ERR, err.BIT1_ERR);
   }
 }
 
@@ -142,7 +139,8 @@ void CANManager::setFrameCallback(FrameCallback cb) {
 }
 
 bool CANManager::sendFrame(uint8_t bus, const CarCANdy::CanFrame &frame) {
-  if (bus < 1 || bus > kBusCount || !busEnabled_[bus] || !busTransmitAllowed_[bus]) {
+  if (bus < 1 || bus > kBusCount || !busEnabled_[bus] ||
+      !busTransmitAllowed_[bus]) {
     return false;
   }
 

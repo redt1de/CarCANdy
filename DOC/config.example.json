@@ -2,6 +2,7 @@
   "commMode": "UART",
   "canBuses": [
     {
+      "notes": "mode = read_only or transmit",
       "id": 1,
       "enabled": true,
       "baud": 500000,
@@ -27,6 +28,7 @@
     "prefix": "mustang"
   },
   "filters": {
+    "notes": "mode = allow,deny,none",
     "mode": "none",
     "file": "/filters.csv"
   },
@@ -34,7 +36,12 @@
     "shiftLight": {
       "enabled": false,
       "config": {
-        "rpmThreshold": 6500
+        "shiftThreshold": 6500,
+        "redlineThreshold": 7800,
+        "trackModeOnly": true,
+        "tachEnabled": false,
+        "alarmMode": "flash",
+        "ledPin": 24
       }
     },
     "lineLock": {

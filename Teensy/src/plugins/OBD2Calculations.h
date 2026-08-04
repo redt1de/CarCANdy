@@ -120,7 +120,7 @@ void PrintGearboxMode() {
 // b0, b4, b5 - RGB colors of My Color
 // b2 - drive mode (0 - normal, 1 - sport, 2 - snow, 3 - track)
 
-static int32_t g_CurrentDriveMode = 0; // 0 = Neutral, -1 = Reverse
+static int32_t g_CurrentDriveMode = 0;
 
 int32_t CalcCurrentDriveMode(const uint8_t *pData) {
   // 0x3C8 byte2 appears to be flags + mode. Mode is commonly in the low 2 bits.

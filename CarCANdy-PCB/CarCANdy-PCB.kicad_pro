@@ -76,7 +76,12 @@
           "width": 0.0
         }
       ],
-      "drc_exclusions": [],
+      "drc_exclusions": [
+        [
+          "net_conflict|44637732|21368771|f600d64b-9dd5-45e0-b4d8-6d097e0fbac5|00000000-0000-0000-0000-000000000000",
+          ""
+        ]
+      ],
       "meta": {
         "version": 2
       },
@@ -542,7 +547,7 @@
     "last_paths": {
       "idf": "",
       "netlist": "",
-      "plot": "",
+      "plot": "FAB/",
       "specctra_dsn": "",
       "vrml": ""
     },
@@ -666,7 +671,7 @@
         "uuid": "971987f6-db6c-4f58-a887-69a69687dd52"
       }
     ],
-    "used_designators": "#PWR75,H1-8",
+    "used_designators": "H1-2",
     "variants": []
   },
   "sheets": [

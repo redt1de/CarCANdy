@@ -1,7 +1,8 @@
 #include "PluginManager.h"
 #include <Arduino.h>
 
-PluginManager::PluginManager(ConfigManager& config) : config_(config) {}
+PluginManager::PluginManager(ConfigManager& config, CANManager& canManager)
+    : config_(config), canManager_(canManager) {}
 
 bool PluginManager::registerPlugin(PluginBase* plugin) {
     if (pluginCount_ >= kMaxPlugins) {
@@ -25,7 +26,7 @@ void PluginManager::begin() {
     config_.save();
 
     for (uint8_t i = 0; i < pluginCount_; ++i) {
-        plugins_[i]->init(config_);
+        plugins_[i]->init(config_, canManager_);
     }
 }
 
