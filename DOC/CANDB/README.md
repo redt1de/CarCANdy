@@ -7,21 +7,17 @@ these are reference databases only.
 ## Files
 
 - `2015_ford_mustang_gt.json` — 2015 Ford Mustang GT (S550), built from three community
-  sources plus one signal verified on the project owner's own car.
+  sources plus one signal verified on the project owner's own car (see "Sources" below).
 
 ## Schema
 
 ```
 {
   "vehicle": { make, model, years, notes },
-  "importantCaveats": [ ... ],
-  "sources": [ { id, title, url, byteIndexConvention, note } ],
   "messages": {
     "0xNNN": {
       "idDecimal": ...,
       "vehicleBus": ["HS1"|"HS3"|"MS"|...],
-      "periodMs": ... | null,
-      "sources": ["sourceId", ...],
       "signals": [
         {
           "name": "...",
@@ -31,9 +27,6 @@ these are reference databases only.
           "unit": "...",
           "enum": { "rawValue": "meaning" },
           "bits": { "bitIndex": "meaning" },
-          "confidence": "verified-on-vehicle" | "community-cross-confirmed"
-                       | "community-single-source" | "unconfirmed" | "conflict",
-          "source": "sourceId" | ["sourceId", ...],
           "sourceRaw": { ... },       // original as-published values, for signals whose
                                       // byte index was converted (see below)
           "notes": "..."
@@ -44,19 +37,15 @@ these are reference databases only.
 }
 ```
 
-## Confidence levels
-
-- `verified-on-vehicle` — confirmed against real captured data from this project's own
-  2015 Mustang GT (currently only `0x204` RPM, via `Teensy/src/plugins/ShiftLightPlugin.h`).
-- `community-cross-confirmed` — two or more independent community sources agree.
-- `community-single-source` — reported by exactly one community source, not yet checked.
-- `unconfirmed` — the source itself flagged the signal as a guess (often written in
-  *italics* or with a `?` in the original material).
-- `conflict` — sources disagree on the same byte/ID; both interpretations are preserved
-  side by side rather than one being silently picked. Look at each signal's `notes` for
-  the specifics, and verify against your own sniffer capture before trusting either.
+There's no structured confidence/attribution field — how sure a signal is, and which
+source(s) reported it, is written in prose in that signal's (or message's) `notes` field
+instead. This keeps the schema small at the cost of that information not being filterable
+by tooling; the `candb` CLI reads `notes` as free text but doesn't parse it.
 
 ## Sources
+
+The source material behind this file (not embedded in the JSON itself — see above), for
+context on names that show up in `notes` text throughout it:
 
 1. **ivanyshyn** — [`parse_can_logs`](https://github.com/v-ivanyshyn/parse_can_logs/blob/master/Ford%20CAN%20IDs%20Summary.md),
    0-based byte indexing (author's own `b0, b1, ...` convention).
@@ -71,11 +60,12 @@ these are reference databases only.
    original `Byte_position` column reads as **1-based** — this was inferred (not assumed)
    by cross-checking overlapping signals against the two 0-based GitHub sources (e.g. the
    `0x230` gearbox-mode byte and the `0x2A1` media-button byte line up exactly once you
-   subtract 1). Every signal sourced from this CSV keeps its original `Byte_position` in a
+   subtract 1). Signals sourced from this CSV keep their original `Byte_position` in a
    `sourceRaw` field alongside the converted 0-based `byteIndex`, so you can double check
    the conversion.
 4. **carcandy_verified** — signals actually confirmed against this project's own vehicle
-   in firmware code, not just reported by a third party.
+   in firmware code, not just reported by a third party. Currently only `0x204`'s `rpm`
+   signal, via `Teensy/src/plugins/ShiftLightPlugin.h` -- see that signal's `notes`.
 
 ## Critical gotcha: vehicle bus names vs. CarCANdy bus numbers
 
@@ -102,9 +92,9 @@ CarCANdy bus number on your car — that mapping lives (or should live, once fil
   "twilight/night"; the forum CSV reads the same value as "hazard warning off" (with
   `0x89`/`0x8A` as hazard-on). Directly conflicting interpretations of the same byte value.
 
-All three are preserved as separate `signal` entries with `confidence: "conflict"` and a
-`notes` field explaining the disagreement — verify against a live capture on your car
-before relying on any of them.
+All three are preserved as separate `signal` entries (`0x3B3`'s is also tagged
+`"type": "conflict"`), each with a `notes` field explaining the disagreement — verify
+against a live capture on your car before relying on any of them.
 
 ## Anomaly worth flagging
 

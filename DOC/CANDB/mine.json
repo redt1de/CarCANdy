@@ -1,0 +1,28 @@
+maybe scripting will be easier for end user???
+
+script is pulled from the JSON and executed passing $FRAME which is the raw frame hex
+
+{
+    "vehicle": {
+        "make": "Ford",
+        "model": "Mustang GT",
+        "years": "2015 (S550 platform; community sources also report matches on 2016 GT350)",
+        "notes": "Signal meanings below are almost entirely community-reverse-engineered, not from an OEM DBC. Treat every entry as a hypothesis to verify against your own captures unless marked confidence:\"verified-on-vehicle\"."
+    },
+    "messages": {
+        "0x204": {
+            "idDecimal": 516,
+            "vehicleBus": [
+                "HS1",
+                "HS3"
+            ],
+            "signals": [
+                {
+                    "name": "rpm",
+                    "script": "[bash/python snippet that returns the extracted value]",
+                    "notes": "Confirmed in Teensy/src/plugins/ShiftLightPlugin.h against real 2015 Mustang GT data (bus 1 in this project's own CarCANdy bus numbering). Matches ivanyshyn's b3<<8+b4 *2 and eturner3's \"gauge is half of actual RPM, 0-4000 range\" exactly -- three independent confirmations."
+                }
+            ]
+        }
+    }
+}

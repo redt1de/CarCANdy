@@ -8114,6 +8114,17 @@
 		)
 		(uuid "25b93997-0fb3-464e-80b9-5fbbf068435c")
 	)
+	(text "TODO V2: \n - rewire RJ45 so pairs are together and same sequence\n - replace SN65HVD233DR with FdCAN capable chips\n - add fuse"
+		(exclude_from_sim no)
+		(at 547.37 163.83 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "4d302eec-9dd1-4617-ba27-b8e5b4c06c62")
+	)
 	(text "CAN"
 		(exclude_from_sim no)
 		(at 634.238 145.288 0)

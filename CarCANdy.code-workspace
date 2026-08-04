@@ -21,9 +21,6 @@
 		},
 		{
 			"path": "CLI"
-		},
-		{
-			"path": "CarCANdy-PCB"
 		}
 	],
 	"settings": {},

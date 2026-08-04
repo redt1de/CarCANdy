@@ -18,63 +18,29 @@ type Vehicle struct {
 	Notes string `json:"notes"`
 }
 
-type Source struct {
-	ID                  string `json:"id"`
-	Title               string `json:"title"`
-	URL                 string `json:"url"`
-	ByteIndexConvention string `json:"byteIndexConvention"`
-	Note                string `json:"note"`
-	VehiclesTested      string `json:"vehiclesTested"`
-}
-
 type Signal struct {
-	Name       string            `json:"name"`
-	ByteIndex  []int             `json:"byteIndex"`
-	Type       string            `json:"type"`
-	Formula    string            `json:"formula,omitempty"`
-	Unit       string            `json:"unit,omitempty"`
-	Enum       map[string]string `json:"enum,omitempty"`
-	Bits       map[string]string `json:"bits,omitempty"`
-	Confidence string            `json:"confidence,omitempty"`
-	Source     any               `json:"source,omitempty"`
-	SourceRaw  any               `json:"sourceRaw,omitempty"`
-	Notes      string            `json:"notes,omitempty"`
-}
-
-// Sources normalizes the source field, which is a string in some entries and
-// a []string in others, into a single slice.
-func (s Signal) Sources() []string {
-	switch v := s.Source.(type) {
-	case string:
-		return []string{v}
-	case []any:
-		out := make([]string, 0, len(v))
-		for _, item := range v {
-			if str, ok := item.(string); ok {
-				out = append(out, str)
-			}
-		}
-		return out
-	default:
-		return nil
-	}
+	Name      string            `json:"name"`
+	ByteIndex []int             `json:"byteIndex"`
+	Type      string            `json:"type"`
+	Formula   string            `json:"formula,omitempty"`
+	Unit      string            `json:"unit,omitempty"`
+	Enum      map[string]string `json:"enum,omitempty"`
+	Bits      map[string]string `json:"bits,omitempty"`
+	SourceRaw any               `json:"sourceRaw,omitempty"`
+	Notes     string            `json:"notes,omitempty"`
 }
 
 type Message struct {
 	IDDecimal     int      `json:"idDecimal"`
 	VehicleBus    []string `json:"vehicleBus"`
-	PeriodMs      *float64 `json:"periodMs"`
-	Sources       []string `json:"sources"`
 	Signals       []Signal `json:"signals"`
 	Notes         string   `json:"notes,omitempty"`
 	SampleMessage string   `json:"sampleMessage,omitempty"`
 }
 
 type DB struct {
-	Vehicle          Vehicle            `json:"vehicle"`
-	ImportantCaveats []string           `json:"importantCaveats"`
-	Sources          []Source           `json:"sources"`
-	Messages         map[string]Message `json:"messages"`
+	Vehicle  Vehicle            `json:"vehicle"`
+	Messages map[string]Message `json:"messages"`
 
 	// byID maps the numeric CAN ID to the original key used in Messages
 	// (e.g. "0x076"), so lookups don't depend on the caller reproducing the

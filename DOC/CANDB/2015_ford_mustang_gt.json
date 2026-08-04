@@ -3,519 +3,1801 @@
     "make": "Ford",
     "model": "Mustang GT",
     "years": "2015 (S550 platform; community sources also report matches on 2016 GT350)",
-    "notes": "Signal meanings below are almost entirely community-reverse-engineered, not from an OEM DBC. Treat every entry as a hypothesis to verify against your own captures unless marked confidence:\"verified-on-vehicle\"."
+    "notes": "Signal meanings below are almost entirely community-reverse-engineered, not from an OEM DBC. Treat every entry as a hypothesis to verify against your own captures -- each signal's \"notes\" field records how sure (or not) its source was, and whether it's been confirmed against this project's own vehicle."
   },
-
-  "importantCaveats": [
-    "vehicleBus values (\"HS1\", \"HS3\", \"MS\") are the PHYSICAL vehicle bus names used by the community sources below -- they are NOT the same thing as CarCANdy's config.json canBuses[].id / CanFrame.bus numbering (1=CAN1, 2=CAN2, 3=CAN3, see Teensy/include/CANManager.h). Which CarCANdy bus number corresponds to which vehicleBus depends entirely on which vehicle bus you physically wired each transceiver to -- fill that mapping into DOC/pinout.md's 'Wired to' table, then translate before using these IDs in CarCANdy config/filters/plugins.",
-    "byteIndex is always 0-based (data[0]..data[7]), matching Shared/CanTypes.h's CanFrame.data[8] array -- this is the convention used by ivanyshyn and eturner3's source material directly. The mustang6g_forum_csv source's original Byte_position column was 1-based; it has been converted to 0-based (byteIndex = Byte_position - 1) for every signal below, with the original value preserved in sourceRaw for verification.",
-    "Many signals appear byte-identical on both HS1 and HS3 (the two source repos note this repeatedly) -- don't assume a signal is only on one bus just because a source only tested one.",
-    "Several ID/byte assignments conflict between sources (see \"conflicts\" notes on individual signals) -- these are preserved deliberately rather than silently resolved. Verify with the Sniffer page against your own car before trusting either version."
-  ],
-
-  "sources": [
-    {
-      "id": "ivanyshyn",
-      "title": "Ford HS1 & HS3 CAN bus IDs (Mustang S550, GT, 6R80 auto)",
-      "url": "https://github.com/v-ivanyshyn/parse_can_logs/blob/master/Ford%20CAN%20IDs%20Summary.md",
-      "byteIndexConvention": "0-based (author's own key: b0, b1, ...)"
-    },
-    {
-      "id": "eturner3",
-      "title": "Ford CAN Database (s550-canbus)",
-      "url": "https://github.com/EricTurner3/s550-canbus/blob/master/database.md",
-      "byteIndexConvention": "0-based (explicitly stated: \"All byte references start at 0, so the range is 0-7\")",
-      "vehiclesTested": "2015 Mustang GT Premium / 2016 Ford Mustang GT350"
-    },
-    {
-      "id": "mustang6g_forum_csv",
-      "title": "mustang6g.com forum thread \"Some results of CAN research\"",
-      "url": "https://www.mustang6g.com/forums/threads/some-results-of-can-research.176383/",
-      "byteIndexConvention": "Original column was 1-based (Byte_position); converted to 0-based byteIndex here. Not independently fetchable (403/anti-bot on direct fetch, WebFetch, and a reader-proxy; no Wayback Machine snapshot exists) -- content was supplied directly by the user as CSV, so it could not be cross-checked against the live thread for completeness.",
-      "note": "1-based convention inferred by cross-referencing overlapping signals against ivanyshyn/eturner3 (0x230 gearbox mode, 0x2A1 media buttons, 0x083 turn signals all line up cleanly under byte_position - 1)."
-    },
-    {
-      "id": "carcandy_verified",
-      "title": "Verified directly on this project's own 2015 Mustang GT via Teensy/src/plugins/ShiftLightPlugin.h",
-      "url": null,
-      "note": "Highest-confidence source in this file -- confirmed against real, live vehicle data by the project owner, not just community-reported."
-    }
-  ],
-
   "messages": {
-
     "0x076": {
-      "idDecimal": 118, "vehicleBus": ["HS1", "HS3"], "periodMs": 20, "sources": ["ivanyshyn"],
+      "idDecimal": 118,
+      "vehicleBus": [
+        "HS1",
+        "HS3"
+      ],
       "signals": [
-        { "name": "steering", "byteIndex": [0, 1], "type": "raw", "formula": "(b0<<8)+b1", "unit": null, "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "speed", "byteIndex": [5, 6], "type": "linear", "formula": "((b5<<8)+b6)/100", "scale": 0.01, "unit": null, "confidence": "community-single-source", "source": "ivanyshyn" }
+        {
+          "name": "steering",
+          "byteIndex": [
+            0,
+            1
+          ],
+          "type": "raw",
+          "formula": "(b0<<8)+b1",
+          "unit": null
+        },
+        {
+          "name": "speed",
+          "byteIndex": [
+            5,
+            6
+          ],
+          "type": "linear",
+          "formula": "((b5<<8)+b6)/100",
+          "unit": null
+        }
       ]
     },
-
     "0x077": {
-      "idDecimal": 119, "vehicleBus": ["HS1", "HS3"], "periodMs": 20, "sources": ["ivanyshyn"],
+      "idDecimal": 119,
+      "vehicleBus": [
+        "HS1",
+        "HS3"
+      ],
       "signals": [
-        { "name": "speed", "byteIndex": [0, 1], "type": "raw", "formula": "(b0<<8)+b1", "unit": null, "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "lateral_g_relative", "byteIndex": [2, 3], "type": "linear", "formula": "(((b2&31)<<8)+b3-2048)/200", "unit": "m/s^2", "notes": "Relative to car base -- reads 0 when the car is stationary, unlike 0x092's lateral G which is relative to ground plane.", "confidence": "community-single-source", "source": "ivanyshyn" }
+        {
+          "name": "speed",
+          "byteIndex": [
+            0,
+            1
+          ],
+          "type": "raw",
+          "formula": "(b0<<8)+b1",
+          "unit": null
+        },
+        {
+          "name": "lateral_g_relative",
+          "byteIndex": [
+            2,
+            3
+          ],
+          "type": "linear",
+          "formula": "(((b2&31)<<8)+b3-2048)/200",
+          "unit": "m/s^2",
+          "notes": "Relative to car base -- reads 0 when the car is stationary, unlike 0x092's lateral G which is relative to ground plane."
+        }
       ]
     },
-
     "0x07D": {
-      "idDecimal": 125, "vehicleBus": ["HS1"], "periodMs": 20, "sources": ["ivanyshyn"],
+      "idDecimal": 125,
+      "vehicleBus": [
+        "HS1"
+      ],
       "signals": [
-        { "name": "brake_pressure_pedal", "byteIndex": [0, 1], "type": "raw", "formula": "(b0<<8)+b1", "confidence": "unconfirmed", "source": "ivanyshyn", "notes": "Source's own wording: \"applied from brake pedal?\" -- uncertain." },
-        { "name": "brake_pressure_tc", "byteIndex": [3, 4], "type": "raw", "formula": "(b3<<8)+b4", "confidence": "unconfirmed", "source": "ivanyshyn", "notes": "Source's own wording: \"applied also in case of traction control (along with 0x416 b1 bit7)\"." }
+        {
+          "name": "brake_pressure_pedal",
+          "byteIndex": [
+            0,
+            1
+          ],
+          "type": "raw",
+          "formula": "(b0<<8)+b1",
+          "notes": "Source's own wording: \"applied from brake pedal?\" -- uncertain."
+        },
+        {
+          "name": "brake_pressure_tc",
+          "byteIndex": [
+            3,
+            4
+          ],
+          "type": "raw",
+          "formula": "(b3<<8)+b4",
+          "notes": "Source's own wording: \"applied also in case of traction control (along with 0x416 b1 bit7)\"."
+        }
       ]
     },
-
     "0x081": {
-      "idDecimal": 129, "vehicleBus": ["HS3"], "periodMs": null, "sources": ["ivanyshyn", "eturner3", "mustang6g_forum_csv"],
+      "idDecimal": 129,
+      "vehicleBus": [
+        "HS3"
+      ],
       "signals": [
-        { "name": "wheel_buttons_left_bitmask", "byteIndex": [0], "type": "bitfield", "bits": { "0": "down", "1": "left", "2": "right", "3": "up", "4": "ok" }, "confidence": "conflict", "source": "ivanyshyn",
-          "notes": "CONFLICT: ivanyshyn places this bitmask at byte 0. eturner3 reports the identical bit values (0x01=down,0x02=left,0x04=right,0x08=up,0x10=ok) at byte 1 instead (see next signal). Both sources are explicitly 0-indexed, so this is a genuine disagreement, not an indexing artifact -- verify empirically." },
-        { "name": "wheel_buttons_arrows_value", "byteIndex": [1], "type": "enum", "enum": { "1": "down", "2": "left", "4": "right", "8": "up", "16": "ok" }, "confidence": "conflict", "source": "eturner3",
-          "notes": "eturner3 sample message: 00 00 00 00 00 00 00 00. Same bit values as ivanyshyn's byte-0 bitmask above, but reported at byte 1 -- see conflict note there." },
-        { "name": "wheel_buttons_updown_ok", "byteIndex": [0], "type": "enum", "enum": { "8": "up", "1": "down", "16": "ok" }, "sourceRaw": { "Byte_position": 1 }, "confidence": "community-cross-confirmed", "source": "mustang6g_forum_csv",
-          "notes": "Matches ivanyshyn's byte-0 placement and bit values for up/down/ok (left/right not covered in this row)." },
-        { "name": "wheel_buttons_menu", "byteIndex": [1], "type": "enum", "enum": { "64": "back", "4": "navigation", "1": "settings", "2": "music" }, "sourceRaw": { "Byte_position": 2 }, "confidence": "community-single-source", "source": "mustang6g_forum_csv",
-          "notes": "New information not present in ivanyshyn/eturner3 -- back/nav/settings/music menu buttons." }
+        {
+          "name": "wheel_buttons_left_bitmask",
+          "byteIndex": [
+            0
+          ],
+          "type": "bitfield",
+          "bits": {
+            "0": "down",
+            "1": "left",
+            "2": "right",
+            "3": "up",
+            "4": "ok"
+          },
+          "notes": "CONFLICT: ivanyshyn places this bitmask at byte 0. eturner3 reports the identical bit values (0x01=down,0x02=left,0x04=right,0x08=up,0x10=ok) at byte 1 instead (see next signal). Both sources are explicitly 0-indexed, so this is a genuine disagreement, not an indexing artifact -- verify empirically."
+        },
+        {
+          "name": "wheel_buttons_arrows_value",
+          "byteIndex": [
+            1
+          ],
+          "type": "enum",
+          "enum": {
+            "1": "down",
+            "2": "left",
+            "4": "right",
+            "8": "up",
+            "16": "ok"
+          },
+          "notes": "eturner3 sample message: 00 00 00 00 00 00 00 00. Same bit values as ivanyshyn's byte-0 bitmask above, but reported at byte 1 -- see conflict note there."
+        },
+        {
+          "name": "wheel_buttons_updown_ok",
+          "byteIndex": [
+            0
+          ],
+          "type": "enum",
+          "enum": {
+            "8": "up",
+            "1": "down",
+            "16": "ok"
+          },
+          "sourceRaw": {
+            "Byte_position": 1
+          },
+          "notes": "Matches ivanyshyn's byte-0 placement and bit values for up/down/ok (left/right not covered in this row)."
+        },
+        {
+          "name": "wheel_buttons_menu",
+          "byteIndex": [
+            1
+          ],
+          "type": "enum",
+          "enum": {
+            "64": "back",
+            "4": "navigation",
+            "1": "settings",
+            "2": "music"
+          },
+          "sourceRaw": {
+            "Byte_position": 2
+          },
+          "notes": "New information not present in ivanyshyn/eturner3 -- back/nav/settings/music menu buttons."
+        }
       ]
     },
-
     "0x082": {
-      "idDecimal": 130, "vehicleBus": ["HS1"], "periodMs": null, "sources": ["ivanyshyn", "eturner3"],
+      "idDecimal": 130,
+      "vehicleBus": [
+        "HS1"
+      ],
       "sampleMessage": "82 00 14 40 7E 00 64 FF",
       "signals": [
-        { "name": "steering_noisy", "byteIndex": [0], "type": "raw", "notes": "ivanyshyn: \"steering with some noise\".", "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "current_consumption_or_fuel", "byteIndex": [2, 3], "type": "raw", "formula": "(b2<<8)+b3", "confidence": "community-single-source",
-          "notes": "ivanyshyn guesses \"current consumption\"; eturner3 guesses \"Fuel Consumption??\" for the same two bytes. Neither is confirmed.", "source": ["ivanyshyn", "eturner3"] },
-        { "name": "voltage", "byteIndex": [4], "type": "linear", "formula": "b4/20+6", "unit": "V", "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "steering_mode", "byteIndex": [6], "type": "enum", "enum": { "64": "normal", "68": "sport", "72": "comfort" }, "notes": "Hex in sources: 0x40 normal, 0x44 sport, 0x48 comfort.", "confidence": "community-cross-confirmed", "source": ["ivanyshyn", "eturner3"] }
+        {
+          "name": "steering_noisy",
+          "byteIndex": [
+            0
+          ],
+          "type": "raw",
+          "notes": "ivanyshyn: \"steering with some noise\"."
+        },
+        {
+          "name": "current_consumption_or_fuel",
+          "byteIndex": [
+            2,
+            3
+          ],
+          "type": "raw",
+          "formula": "(b2<<8)+b3",
+          "notes": "ivanyshyn guesses \"current consumption\"; eturner3 guesses \"Fuel Consumption??\" for the same two bytes. Neither is confirmed."
+        },
+        {
+          "name": "voltage",
+          "byteIndex": [
+            4
+          ],
+          "type": "linear",
+          "formula": "b4/20+6",
+          "unit": "V"
+        },
+        {
+          "name": "steering_mode",
+          "byteIndex": [
+            6
+          ],
+          "type": "enum",
+          "enum": {
+            "64": "normal",
+            "68": "sport",
+            "72": "comfort"
+          },
+          "notes": "Hex in sources: 0x40 normal, 0x44 sport, 0x48 comfort."
+        }
       ]
     },
-
     "0x083": {
-      "idDecimal": 131, "vehicleBus": ["HS1"], "periodMs": 100, "sources": ["ivanyshyn", "eturner3", "mustang6g_forum_csv"],
+      "idDecimal": 131,
+      "vehicleBus": [
+        "HS1"
+      ],
       "sampleMessage": "00 E0 80 00 00 00 00 00 (eturner3)",
       "signals": [
-        { "name": "turn_signals_bitmask", "byteIndex": [0], "type": "bitfield", "bits": { "4": "left", "5": "right" }, "confidence": "community-cross-confirmed", "source": ["ivanyshyn", "eturner3"],
-          "notes": "ivanyshyn: bit4=left, bit5=right (0x10=left, 0x20=right). eturner3 sample: byte0 0x10=left signal (0x50=left signal + flash high beams), 0x20=right signal -- consistent. mustang6g_forum_csv reports 17/33 (0x11/0x21) at the same byte for left/right, ~1 higher than ivanyshyn/eturner3's 16/32 -- likely an extra bit set concurrently, not a contradiction." },
-        { "name": "turn_signal_lever_values", "byteIndex": [0], "type": "enum", "enum": { "17": "left_turn_signal", "33": "right_turn_signal" }, "sourceRaw": { "Byte_position": 1 }, "confidence": "community-single-source", "source": "mustang6g_forum_csv" },
-        { "name": "high_beam_status", "byteIndex": [0, 4], "type": "enum", "enum": { "0,0": "off", "64,8": "flash_high_beams", "0,16": "high_beam_switch_activated", "128,0": "high_beams_on" }, "confidence": "community-single-source", "source": "eturner3", "notes": "Pair of (byte0,byte4) values given together in source; decimal shown, hex: (0,0)=off, (0x40,0x08)=flash, (0,0x10)=switch activated, (0x80,0)=on." },
-        { "name": "high_beam_cruise_byte", "byteIndex": [4], "type": "enum", "enum": { "12": "quick_high_beam", "20": "constant_high_beam", "64": "cruise_control_on_off" }, "sourceRaw": { "Byte_position": 5 }, "confidence": "community-single-source", "source": "mustang6g_forum_csv", "notes": "Byte topic overlaps eturner3's high_beam_status byte4, but values/encoding don't cleanly match -- unresolved, verify empirically." },
-        { "name": "cruise_up_down_speed", "byteIndex": [3], "type": "enum", "enum": { "8": "cruise_up_speed", "16": "cruise_down_speed" }, "sourceRaw": { "Byte_position": 4 }, "confidence": "community-single-source", "source": "mustang6g_forum_csv" },
-        { "name": "cruise_cancel_track", "byteIndex": [2], "type": "enum", "enum": { "64": "line_track_press", "32": "cruise_cancel" }, "sourceRaw": { "Byte_position": 3 }, "confidence": "community-single-source", "source": "mustang6g_forum_csv", "notes": "\"line track press\" reproduced verbatim from source CSV -- meaning/spelling not confirmed, possibly Track Apps / Line Lock related given this is a Mustang." }
+        {
+          "name": "turn_signals_bitmask",
+          "byteIndex": [
+            0
+          ],
+          "type": "bitfield",
+          "bits": {
+            "4": "left",
+            "5": "right"
+          },
+          "notes": "ivanyshyn: bit4=left, bit5=right (0x10=left, 0x20=right). eturner3 sample: byte0 0x10=left signal (0x50=left signal + flash high beams), 0x20=right signal -- consistent. mustang6g_forum_csv reports 17/33 (0x11/0x21) at the same byte for left/right, ~1 higher than ivanyshyn/eturner3's 16/32 -- likely an extra bit set concurrently, not a contradiction."
+        },
+        {
+          "name": "turn_signal_lever_values",
+          "byteIndex": [
+            0
+          ],
+          "type": "enum",
+          "enum": {
+            "17": "left_turn_signal",
+            "33": "right_turn_signal"
+          },
+          "sourceRaw": {
+            "Byte_position": 1
+          }
+        },
+        {
+          "name": "high_beam_status",
+          "byteIndex": [
+            0,
+            4
+          ],
+          "type": "enum",
+          "enum": {
+            "0,0": "off",
+            "64,8": "flash_high_beams",
+            "0,16": "high_beam_switch_activated",
+            "128,0": "high_beams_on"
+          },
+          "notes": "Pair of (byte0,byte4) values given together in source; decimal shown, hex: (0,0)=off, (0x40,0x08)=flash, (0,0x10)=switch activated, (0x80,0)=on."
+        },
+        {
+          "name": "high_beam_cruise_byte",
+          "byteIndex": [
+            4
+          ],
+          "type": "enum",
+          "enum": {
+            "12": "quick_high_beam",
+            "20": "constant_high_beam",
+            "64": "cruise_control_on_off"
+          },
+          "sourceRaw": {
+            "Byte_position": 5
+          },
+          "notes": "Byte topic overlaps eturner3's high_beam_status byte4, but values/encoding don't cleanly match -- unresolved, verify empirically."
+        },
+        {
+          "name": "cruise_up_down_speed",
+          "byteIndex": [
+            3
+          ],
+          "type": "enum",
+          "enum": {
+            "8": "cruise_up_speed",
+            "16": "cruise_down_speed"
+          },
+          "sourceRaw": {
+            "Byte_position": 4
+          }
+        },
+        {
+          "name": "cruise_cancel_track",
+          "byteIndex": [
+            2
+          ],
+          "type": "enum",
+          "enum": {
+            "64": "line_track_press",
+            "32": "cruise_cancel"
+          },
+          "sourceRaw": {
+            "Byte_position": 3
+          },
+          "notes": "\"line track press\" reproduced verbatim from source CSV -- meaning/spelling not confirmed, possibly Track Apps / Line Lock related given this is a Mustang."
+        }
       ]
     },
-
     "0x084": {
-      "idDecimal": 132, "vehicleBus": ["HS1"], "periodMs": 1000, "sources": ["ivanyshyn"],
+      "idDecimal": 132,
+      "vehicleBus": [
+        "HS1"
+      ],
       "notes": "Looks like a clock/date broadcast (possibly GPS-synced navigation module).",
       "signals": [
-        { "name": "year_2digit", "byteIndex": [0], "type": "raw", "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "day_of_year", "byteIndex": [2, 3], "type": "raw", "formula": "(b2<<8)+b3", "notes": "Example given: 0x00 0x20 -> 32 -> Feb 1.", "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "time_seconds", "byteIndex": [4], "type": "raw", "unit": "s", "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "time_minutes", "byteIndex": [5], "type": "raw", "unit": "min", "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "time_hour", "byteIndex": [6], "type": "raw", "unit": "h", "confidence": "community-single-source", "source": "ivanyshyn" }
+        {
+          "name": "year_2digit",
+          "byteIndex": [
+            0
+          ],
+          "type": "raw"
+        },
+        {
+          "name": "day_of_year",
+          "byteIndex": [
+            2,
+            3
+          ],
+          "type": "raw",
+          "formula": "(b2<<8)+b3",
+          "notes": "Example given: 0x00 0x20 -> 32 -> Feb 1."
+        },
+        {
+          "name": "time_seconds",
+          "byteIndex": [
+            4
+          ],
+          "type": "raw",
+          "unit": "s"
+        },
+        {
+          "name": "time_minutes",
+          "byteIndex": [
+            5
+          ],
+          "type": "raw",
+          "unit": "min"
+        },
+        {
+          "name": "time_hour",
+          "byteIndex": [
+            6
+          ],
+          "type": "raw",
+          "unit": "h"
+        }
       ]
     },
-
     "0x085": {
-      "idDecimal": 133, "vehicleBus": ["HS1"], "periodMs": null, "sources": ["ivanyshyn"],
+      "idDecimal": 133,
+      "vehicleBus": [
+        "HS1"
+      ],
       "signals": [
-        { "name": "steering", "byteIndex": [0, 1], "type": "raw", "formula": "(b0<<8)+b1", "notes": "Possibly redundant with steering signals on 0x076/0x082/0x3A8.", "confidence": "community-single-source", "source": "ivanyshyn" }
+        {
+          "name": "steering",
+          "byteIndex": [
+            0,
+            1
+          ],
+          "type": "raw",
+          "formula": "(b0<<8)+b1",
+          "notes": "Possibly redundant with steering signals on 0x076/0x082/0x3A8."
+        }
       ]
     },
-
     "0x092": {
-      "idDecimal": 146, "vehicleBus": ["HS1"], "periodMs": 100, "sources": ["ivanyshyn"],
+      "idDecimal": 146,
+      "vehicleBus": [
+        "HS1"
+      ],
       "notes": "G-force relative to ground plane (noisy; affected by incline, unlike 0x077/0x213 which are relative to the car body). Formula pattern applies per-axis using that axis's own byte pair -- source text gives one example formula using b1/b2; interpreted here as applying analogously to each axis's pair.",
       "signals": [
-        { "name": "lateral_g", "byteIndex": [0, 1], "type": "linear", "formula": "(((b0&31)<<8)+b1)/100-40", "unit": "m/s^2", "notes": "Positive = toward right side.", "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "longitudinal_g", "byteIndex": [2, 3], "type": "linear", "formula": "(((b2&31)<<8)+b3)/100-40", "unit": "m/s^2", "notes": "Positive = toward back.", "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "vertical_g", "byteIndex": [4, 5], "type": "linear", "formula": "(((b4&31)<<8)+b5)/100-40", "unit": "m/s^2", "notes": "~9.8 when stationary on a level surface.", "confidence": "community-single-source", "source": "ivanyshyn" }
+        {
+          "name": "lateral_g",
+          "byteIndex": [
+            0,
+            1
+          ],
+          "type": "linear",
+          "formula": "(((b0&31)<<8)+b1)/100-40",
+          "unit": "m/s^2",
+          "notes": "Positive = toward right side."
+        },
+        {
+          "name": "longitudinal_g",
+          "byteIndex": [
+            2,
+            3
+          ],
+          "type": "linear",
+          "formula": "(((b2&31)<<8)+b3)/100-40",
+          "unit": "m/s^2",
+          "notes": "Positive = toward back."
+        },
+        {
+          "name": "vertical_g",
+          "byteIndex": [
+            4,
+            5
+          ],
+          "type": "linear",
+          "formula": "(((b4&31)<<8)+b5)/100-40",
+          "unit": "m/s^2",
+          "notes": "~9.8 when stationary on a level surface."
+        }
       ]
     },
-
     "0x109": {
-      "idDecimal": 265, "vehicleBus": ["HS3"], "periodMs": null, "sources": ["ivanyshyn"],
+      "idDecimal": 265,
+      "vehicleBus": [
+        "HS3"
+      ],
       "signals": [
-        { "name": "rpm", "byteIndex": [0, 1], "type": "linear", "formula": "((b0<<8)+b1)/4", "scale": 0.25, "unit": "rpm", "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "gearbox_mode", "byteIndex": [2], "type": "enum", "enum": { "1": "P", "14": "starting", "17": "R", "33": "N", "49": "D", "65": "S" }, "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "speed", "byteIndex": [4, 5], "type": "linear", "formula": "((b4<<8)+b5)/100", "scale": 0.01, "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "rear_gear_flag", "byteIndex": [6], "type": "enum", "enum": { "1": "rear_gear_active" }, "confidence": "community-single-source", "source": "ivanyshyn" }
+        {
+          "name": "rpm",
+          "byteIndex": [
+            0,
+            1
+          ],
+          "type": "linear",
+          "formula": "((b0<<8)+b1)/4",
+          "unit": "rpm"
+        },
+        {
+          "name": "gearbox_mode",
+          "byteIndex": [
+            2
+          ],
+          "type": "enum",
+          "enum": {
+            "1": "P",
+            "14": "starting",
+            "17": "R",
+            "33": "N",
+            "49": "D",
+            "65": "S"
+          }
+        },
+        {
+          "name": "speed",
+          "byteIndex": [
+            4,
+            5
+          ],
+          "type": "linear",
+          "formula": "((b4<<8)+b5)/100"
+        },
+        {
+          "name": "rear_gear_flag",
+          "byteIndex": [
+            6
+          ],
+          "type": "enum",
+          "enum": {
+            "1": "rear_gear_active"
+          }
+        }
       ]
     },
-
     "0x156": {
-      "idDecimal": 342, "vehicleBus": ["HS1", "HS3"], "periodMs": 10, "sources": ["ivanyshyn", "eturner3"],
+      "idDecimal": 342,
+      "vehicleBus": [
+        "HS1",
+        "HS3"
+      ],
       "sampleMessage": "9E 99 00 00 03 00 00 00 (eturner3)",
       "signals": [
-        { "name": "coolant_temp", "byteIndex": [0], "type": "linear", "formula": "b0-60", "unit": "C", "confidence": "community-cross-confirmed", "source": ["ivanyshyn", "eturner3"], "notes": "eturner3: gauge doesn't move until ~0x80; \"freezes\" 0xA6 (106C) to 0xC0 (132C) then rapidly ramps and can trigger overheat warning." },
-        { "name": "oil_temp", "byteIndex": [1], "type": "linear", "formula": "b1-60", "unit": "C", "confidence": "community-cross-confirmed", "source": ["ivanyshyn", "eturner3"], "notes": "eturner3: gauge starts moving at 0x60 (36C), caps ~0xDA (158C)." },
-        { "name": "overheat_flag", "byteIndex": [4], "type": "enum", "enum": { "3": "normal", "8": "overheat_warning" }, "confidence": "community-single-source", "source": "eturner3", "notes": "A high byte0 alone can also trigger the warning per source." }
+        {
+          "name": "coolant_temp",
+          "byteIndex": [
+            0
+          ],
+          "type": "linear",
+          "formula": "b0-60",
+          "unit": "C",
+          "notes": "eturner3: gauge doesn't move until ~0x80; \"freezes\" 0xA6 (106C) to 0xC0 (132C) then rapidly ramps and can trigger overheat warning."
+        },
+        {
+          "name": "oil_temp",
+          "byteIndex": [
+            1
+          ],
+          "type": "linear",
+          "formula": "b1-60",
+          "unit": "C",
+          "notes": "eturner3: gauge starts moving at 0x60 (36C), caps ~0xDA (158C)."
+        },
+        {
+          "name": "overheat_flag",
+          "byteIndex": [
+            4
+          ],
+          "type": "enum",
+          "enum": {
+            "3": "normal",
+            "8": "overheat_warning"
+          },
+          "notes": "A high byte0 alone can also trigger the warning per source."
+        }
       ]
     },
-
     "0x167": {
-      "idDecimal": 359, "vehicleBus": ["HS1", "HS3"], "periodMs": 10, "sources": ["ivanyshyn"],
+      "idDecimal": 359,
+      "vehicleBus": [
+        "HS1",
+        "HS3"
+      ],
       "signals": [
-        { "name": "engine_state", "byteIndex": [0], "type": "enum", "enum": { "0": "off", "32": "starting", "114": "running" }, "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "engine_load_torque", "byteIndex": [1, 2], "type": "linear", "formula": "(((b1-128)<<8)+b2)/4", "confidence": "unconfirmed", "source": "ivanyshyn", "notes": "Source: \"looks like engine load / torque\"; same underlying bytes noted elsewhere as matching 0x42F b4<<8+b5." },
-        { "name": "map_pressure", "byteIndex": [5, 6], "type": "linear", "formula": "(((b5-25)<<8)+b6-128)/5", "unit": null, "confidence": "unconfirmed", "source": "ivanyshyn", "notes": "Manifold absolute pressure guess. Formula reproduced verbatim from source; parenthesis grouping in the original is ambiguous -- verify before using." }
+        {
+          "name": "engine_state",
+          "byteIndex": [
+            0
+          ],
+          "type": "enum",
+          "enum": {
+            "0": "off",
+            "32": "starting",
+            "114": "running"
+          }
+        },
+        {
+          "name": "engine_load_torque",
+          "byteIndex": [
+            1,
+            2
+          ],
+          "type": "linear",
+          "formula": "(((b1-128)<<8)+b2)/4",
+          "notes": "Source: \"looks like engine load / torque\"; same underlying bytes noted elsewhere as matching 0x42F b4<<8+b5."
+        },
+        {
+          "name": "map_pressure",
+          "byteIndex": [
+            5,
+            6
+          ],
+          "type": "linear",
+          "formula": "(((b5-25)<<8)+b6-128)/5",
+          "unit": null,
+          "notes": "Manifold absolute pressure guess. Formula reproduced verbatim from source; parenthesis grouping in the original is ambiguous -- verify before using."
+        }
       ]
     },
-
     "0x171": {
-      "idDecimal": 369, "vehicleBus": ["HS1", "HS3"], "periodMs": 30, "sources": ["ivanyshyn"],
+      "idDecimal": 369,
+      "vehicleBus": [
+        "HS1",
+        "HS3"
+      ],
       "signals": [
-        { "name": "current_gear", "byteIndex": [0], "type": "enum", "enum": { "20": "P_or_N" }, "bits": { "0": "manual_mode", "1": "gear_change_fail" }, "notes": "Additional gear values 36/52/68/84/100 correspond to successive gears (1st..5th, exact mapping not spelled out in source) with bit0/bit1 as flags on top.", "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "gearbox_mode", "byteIndex": [1], "type": "enum", "enum": { "0": "P", "32": "R", "64": "N", "96": "D", "128": "S" }, "confidence": "community-single-source", "source": "ivanyshyn" }
+        {
+          "name": "current_gear",
+          "byteIndex": [
+            0
+          ],
+          "type": "enum",
+          "enum": {
+            "20": "P_or_N"
+          },
+          "bits": {
+            "0": "manual_mode",
+            "1": "gear_change_fail"
+          },
+          "notes": "Additional gear values 36/52/68/84/100 correspond to successive gears (1st..5th, exact mapping not spelled out in source) with bit0/bit1 as flags on top."
+        },
+        {
+          "name": "gearbox_mode",
+          "byteIndex": [
+            1
+          ],
+          "type": "enum",
+          "enum": {
+            "0": "P",
+            "32": "R",
+            "64": "N",
+            "96": "D",
+            "128": "S"
+          }
+        }
       ]
     },
-
     "0x178": {
-      "idDecimal": 376, "vehicleBus": ["HS1", "HS3"], "periodMs": 100, "sources": ["ivanyshyn", "eturner3"],
+      "idDecimal": 376,
+      "vehicleBus": [
+        "HS1",
+        "HS3"
+      ],
       "sampleMessage": "00 00 02 00 0E 88 C6 86 (eturner3)",
       "signals": [
-        { "name": "launch_control_icon", "byteIndex": [0], "type": "enum", "enum": { "32": "lc_icon", "128": "rpm_icon_or_lc_fault", "160": "lc_flashing_icon" }, "notes": "eturner3 gives leading-nibble shorthand 0x2_/0x8_/0xA_; decimal values shown are for the nibble value only (low nibble unspecified/masked).", "confidence": "community-single-source", "source": "eturner3" },
-        { "name": "unconfirmed_graphs", "byteIndex": [2, 3, 5, 6, 7], "type": "unconfirmed", "confidence": "unconfirmed", "source": "ivanyshyn", "notes": "\"some +/- constant graph during run\" on b2<<8+b3, b5, b6, b7 -- not decoded." }
+        {
+          "name": "launch_control_icon",
+          "byteIndex": [
+            0
+          ],
+          "type": "enum",
+          "enum": {
+            "32": "lc_icon",
+            "128": "rpm_icon_or_lc_fault",
+            "160": "lc_flashing_icon"
+          },
+          "notes": "eturner3 gives leading-nibble shorthand 0x2_/0x8_/0xA_; decimal values shown are for the nibble value only (low nibble unspecified/masked)."
+        },
+        {
+          "name": "unconfirmed_graphs",
+          "byteIndex": [
+            2,
+            3,
+            5,
+            6,
+            7
+          ],
+          "type": "unconfirmed",
+          "notes": "\"some +/- constant graph during run\" on b2<<8+b3, b5, b6, b7 -- not decoded."
+        }
       ]
     },
-
     "0x179": {
-      "idDecimal": 377, "vehicleBus": ["HS1", "HS3"], "periodMs": 100, "sources": ["ivanyshyn", "eturner3"],
+      "idDecimal": 377,
+      "vehicleBus": [
+        "HS1",
+        "HS3"
+      ],
       "sampleMessage": "00 00 00 00 96 00 02 C8 (eturner3)",
       "notes": "eturner3: this message suppresses several dashboard warnings (fuel service inlet, change oil soon, oil change required) -- exact bits not identified.",
       "signals": [
-        { "name": "unconfirmed_growing_graph", "byteIndex": [5, 6], "type": "unconfirmed", "confidence": "unconfirmed", "source": "ivanyshyn" },
-        { "name": "unconfirmed_sawtooth", "byteIndex": [7], "type": "unconfirmed", "confidence": "unconfirmed", "source": "ivanyshyn", "notes": "Saw-like graph during engine off, idle, and run." }
+        {
+          "name": "unconfirmed_growing_graph",
+          "byteIndex": [
+            5,
+            6
+          ],
+          "type": "unconfirmed"
+        },
+        {
+          "name": "unconfirmed_sawtooth",
+          "byteIndex": [
+            7
+          ],
+          "type": "unconfirmed",
+          "notes": "Saw-like graph during engine off, idle, and run."
+        }
       ]
     },
-
     "0x200": {
-      "idDecimal": 512, "vehicleBus": ["HS1"], "periodMs": 20, "sources": ["ivanyshyn"],
+      "idDecimal": 512,
+      "vehicleBus": [
+        "HS1"
+      ],
       "signals": [
-        { "name": "unknown_1", "byteIndex": [2, 3], "type": "unconfirmed", "confidence": "unconfirmed", "source": "ivanyshyn" },
-        { "name": "throttle_position_guess", "byteIndex": [4, 5], "type": "unconfirmed", "confidence": "unconfirmed", "source": "ivanyshyn" }
+        {
+          "name": "unknown_1",
+          "byteIndex": [
+            2,
+            3
+          ],
+          "type": "unconfirmed"
+        },
+        {
+          "name": "throttle_position_guess",
+          "byteIndex": [
+            4,
+            5
+          ],
+          "type": "unconfirmed"
+        }
       ]
     },
-
     "0x202": {
-      "idDecimal": 514, "vehicleBus": ["HS1", "HS3"], "periodMs": 20, "sources": ["ivanyshyn", "eturner3"],
+      "idDecimal": 514,
+      "vehicleBus": [
+        "HS1",
+        "HS3"
+      ],
       "sampleMessage": "00 FA 10 00 60 00 00 00 (eturner3)",
       "signals": [
-        { "name": "rear_gear", "byteIndex": [0], "type": "enum", "enum": { "4": "P_N_D_S", "12": "R" }, "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "speed_ivanyshyn", "byteIndex": [6, 7], "type": "linear", "formula": "((b6<<8)+b7)/100", "confidence": "conflict", "source": "ivanyshyn",
-          "notes": "CONFLICT: eturner3 reports a different scale/units for the same two bytes -- see speed_eturner3. Verify which (or neither) matches your car before using." },
-        { "name": "speed_eturner3", "byteIndex": [6, 7], "type": "linear", "formula": "((b6<<8)+b7)/175", "unit": "mph", "confidence": "conflict", "source": "eturner3",
-          "notes": "Source states the raw value equals speed_mph * 175, i.e. mph = raw/175 (formula here inverted for forward decoding); byte4's leading nibble must be 6 or the gauge doesn't respond. Scale disagrees with ivanyshyn's raw/100 -- see speed_ivanyshyn." }
+        {
+          "name": "rear_gear",
+          "byteIndex": [
+            0
+          ],
+          "type": "enum",
+          "enum": {
+            "4": "P_N_D_S",
+            "12": "R"
+          }
+        },
+        {
+          "name": "speed_ivanyshyn",
+          "byteIndex": [
+            6,
+            7
+          ],
+          "type": "linear",
+          "formula": "((b6<<8)+b7)/100",
+          "notes": "CONFLICT: eturner3 reports a different scale/units for the same two bytes -- see speed_eturner3. Verify which (or neither) matches your car before using."
+        },
+        {
+          "name": "speed_eturner3",
+          "byteIndex": [
+            6,
+            7
+          ],
+          "type": "linear",
+          "formula": "((b6<<8)+b7)/175",
+          "unit": "mph",
+          "notes": "Source states the raw value equals speed_mph * 175, i.e. mph = raw/175 (formula here inverted for forward decoding); byte4's leading nibble must be 6 or the gauge doesn't respond. Scale disagrees with ivanyshyn's raw/100 -- see speed_ivanyshyn."
+        }
       ]
     },
-
     "0x204": {
-      "idDecimal": 516, "vehicleBus": ["HS1", "HS3"], "periodMs": 10, "sources": ["ivanyshyn", "eturner3", "carcandy_verified"],
+      "idDecimal": 516,
+      "vehicleBus": [
+        "HS1",
+        "HS3"
+      ],
       "sampleMessage": "C0 00 7D 01 4B 00 00 00 (eturner3)",
       "signals": [
-        { "name": "rpm", "byteIndex": [3, 4], "type": "linear", "formula": "(b3*256+b4)*2", "scale": 2, "unit": "rpm",
-          "confidence": "verified-on-vehicle", "source": "carcandy_verified",
-          "notes": "Confirmed in Teensy/src/plugins/ShiftLightPlugin.h against real 2015 Mustang GT data (bus 1 in this project's own CarCANdy bus numbering). Matches ivanyshyn's b3<<8+b4 *2 and eturner3's \"gauge is half of actual RPM, 0-4000 range\" exactly -- three independent confirmations." },
-        { "name": "accelerator_pedal", "byteIndex": [0, 1], "type": "linear", "formula": "(((b0&3)<<8)+b1)/10", "unit": "%", "notes": "0-100 range per source.", "confidence": "community-single-source", "source": "ivanyshyn" }
+        {
+          "name": "rpm",
+          "byteIndex": [
+            3,
+            4
+          ],
+          "type": "linear",
+          "formula": "(b3*256+b4)*2",
+          "unit": "rpm",
+          "notes": "Confirmed in Teensy/src/plugins/ShiftLightPlugin.h against real 2015 Mustang GT data (bus 1 in this project's own CarCANdy bus numbering). Matches ivanyshyn's b3<<8+b4 *2 and eturner3's \"gauge is half of actual RPM, 0-4000 range\" exactly -- three independent confirmations."
+        },
+        {
+          "name": "accelerator_pedal",
+          "byteIndex": [
+            0,
+            1
+          ],
+          "type": "linear",
+          "formula": "(((b0&3)<<8)+b1)/10",
+          "unit": "%",
+          "notes": "0-100 range per source."
+        }
       ]
     },
-
     "0x20A": {
-      "idDecimal": 522, "vehicleBus": ["HS3"], "periodMs": null, "sources": ["ivanyshyn"],
+      "idDecimal": 522,
+      "vehicleBus": [
+        "HS3"
+      ],
       "signals": [
-        { "name": "drive_mode", "byteIndex": [0], "type": "enum", "enum": { "1": "normal", "17": "sport_track", "33": "snow" }, "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "current_gear_guess", "byteIndex": [1], "type": "unconfirmed", "confidence": "unconfirmed", "source": "ivanyshyn", "notes": "bit7 drops sometimes during gear changes; bit2 drops sometimes -- not fully decoded." }
+        {
+          "name": "drive_mode",
+          "byteIndex": [
+            0
+          ],
+          "type": "enum",
+          "enum": {
+            "1": "normal",
+            "17": "sport_track",
+            "33": "snow"
+          }
+        },
+        {
+          "name": "current_gear_guess",
+          "byteIndex": [
+            1
+          ],
+          "type": "unconfirmed",
+          "notes": "bit7 drops sometimes during gear changes; bit2 drops sometimes -- not fully decoded."
+        }
       ]
     },
-
     "0x213": {
-      "idDecimal": 531, "vehicleBus": ["HS1", "HS3"], "periodMs": 20, "sources": ["ivanyshyn"],
+      "idDecimal": 531,
+      "vehicleBus": [
+        "HS1",
+        "HS3"
+      ],
       "signals": [
-        { "name": "tc_braking_countdown", "byteIndex": [1], "type": "raw", "notes": "255 counts down when traction control applies braking.", "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "tc_applied_flag", "byteIndex": [2], "type": "bitfield", "bits": { "7": "tc_applied_wheel_slide" }, "notes": "Works with TC ON and OFF, does not work with ATC OFF.", "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "tc_braking_applied", "byteIndex": [3], "type": "enum", "enum": { "0": "not_applied", "128": "applying" }, "notes": "Same underlying signal as tc_braking_countdown (byte 1).", "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "driving_flag", "byteIndex": [4], "type": "enum", "enum": { "0": "driving", "128": "speed_zero" }, "confidence": "unconfirmed", "source": "ivanyshyn" },
-        { "name": "longitudinal_g", "byteIndex": [5, 6], "type": "linear", "formula": "(((b5&3)<<8)+b6-512)/28", "unit": "m/s^2", "notes": "Relative to car base -- 0 when stationary, unlike 0x092.", "confidence": "community-single-source", "source": "ivanyshyn" }
+        {
+          "name": "tc_braking_countdown",
+          "byteIndex": [
+            1
+          ],
+          "type": "raw",
+          "notes": "255 counts down when traction control applies braking."
+        },
+        {
+          "name": "tc_applied_flag",
+          "byteIndex": [
+            2
+          ],
+          "type": "bitfield",
+          "bits": {
+            "7": "tc_applied_wheel_slide"
+          },
+          "notes": "Works with TC ON and OFF, does not work with ATC OFF."
+        },
+        {
+          "name": "tc_braking_applied",
+          "byteIndex": [
+            3
+          ],
+          "type": "enum",
+          "enum": {
+            "0": "not_applied",
+            "128": "applying"
+          },
+          "notes": "Same underlying signal as tc_braking_countdown (byte 1)."
+        },
+        {
+          "name": "driving_flag",
+          "byteIndex": [
+            4
+          ],
+          "type": "enum",
+          "enum": {
+            "0": "driving",
+            "128": "speed_zero"
+          }
+        },
+        {
+          "name": "longitudinal_g",
+          "byteIndex": [
+            5,
+            6
+          ],
+          "type": "linear",
+          "formula": "(((b5&3)<<8)+b6-512)/28",
+          "unit": "m/s^2",
+          "notes": "Relative to car base -- 0 when stationary, unlike 0x092."
+        }
       ]
     },
-
     "0x216": {
-      "idDecimal": 534, "vehicleBus": ["HS1", "HS3"], "periodMs": 20, "sources": ["ivanyshyn"],
+      "idDecimal": 534,
+      "vehicleBus": [
+        "HS1",
+        "HS3"
+      ],
       "signals": [
-        { "name": "unexplained", "byteIndex": [], "type": "unconfirmed", "confidence": "unconfirmed", "source": "ivanyshyn", "notes": "\"not understandable saw-like graphs, frequency correlates with speed\"." }
+        {
+          "name": "unexplained",
+          "byteIndex": [],
+          "type": "unconfirmed",
+          "notes": "\"not understandable saw-like graphs, frequency correlates with speed\"."
+        }
       ]
     },
-
     "0x217": {
-      "idDecimal": 535, "vehicleBus": ["HS1"], "periodMs": 10, "sources": ["ivanyshyn"],
+      "idDecimal": 535,
+      "vehicleBus": [
+        "HS1"
+      ],
       "signals": [
-        { "name": "wheel_speed_lf", "byteIndex": [0, 1], "type": "linear", "formula": "((b0<<8)+b1)/100", "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "wheel_speed_rf", "byteIndex": [2, 3], "type": "linear", "formula": "((b2<<8)+b3)/100", "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "wheel_speed_lr", "byteIndex": [4, 5], "type": "linear", "formula": "((b4<<8)+b5)/100", "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "wheel_speed_rr", "byteIndex": [6, 7], "type": "linear", "formula": "((b6<<8)+b7)/100", "confidence": "community-single-source", "source": "ivanyshyn" }
+        {
+          "name": "wheel_speed_lf",
+          "byteIndex": [
+            0,
+            1
+          ],
+          "type": "linear",
+          "formula": "((b0<<8)+b1)/100"
+        },
+        {
+          "name": "wheel_speed_rf",
+          "byteIndex": [
+            2,
+            3
+          ],
+          "type": "linear",
+          "formula": "((b2<<8)+b3)/100"
+        },
+        {
+          "name": "wheel_speed_lr",
+          "byteIndex": [
+            4,
+            5
+          ],
+          "type": "linear",
+          "formula": "((b4<<8)+b5)/100"
+        },
+        {
+          "name": "wheel_speed_rr",
+          "byteIndex": [
+            6,
+            7
+          ],
+          "type": "linear",
+          "formula": "((b6<<8)+b7)/100"
+        }
       ]
     },
-
     "0x230": {
-      "idDecimal": 560, "vehicleBus": ["HS1"], "periodMs": 20, "sources": ["ivanyshyn", "mustang6g_forum_csv"],
-      "signals": [
-        { "name": "current_gear", "byteIndex": [0], "type": "enum", "enum": { "224": "R", "16": "1st" }, "bits": { "0": "clutch_disengaged" }, "notes": "32/48/64/80/100 correspond to successive gears per source, exact mapping beyond 1st not spelled out.", "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "gearbox_mode", "byteIndex": [1], "type": "enum", "enum": { "0": "P", "2": "R", "4": "N", "6": "D", "8": "S" }, "confidence": "community-cross-confirmed", "source": ["ivanyshyn", "mustang6g_forum_csv"],
-          "notes": "ivanyshyn gives 2=R,4=N,6=D,8=S (byte 1); mustang6g_forum_csv gives 0=parking,2=reverse,4=neutral,6=drive,8=sport at (1-based) byte_position 2 = 0-based byte 1 -- same byte, same values, forum source adds the 0=Park case. Strong cross-confirmation, also confirms the forum CSV's 1-based indexing." }
+      "idDecimal": 560,
+      "vehicleBus": [
+        "HS1"
       ],
-      "sourceRaw": { "mustang6g_forum_csv": { "Byte_position": 2 } }
+      "signals": [
+        {
+          "name": "current_gear",
+          "byteIndex": [
+            0
+          ],
+          "type": "enum",
+          "enum": {
+            "224": "R",
+            "16": "1st"
+          },
+          "bits": {
+            "0": "clutch_disengaged"
+          },
+          "notes": "32/48/64/80/100 correspond to successive gears per source, exact mapping beyond 1st not spelled out."
+        },
+        {
+          "name": "gearbox_mode",
+          "byteIndex": [
+            1
+          ],
+          "type": "enum",
+          "enum": {
+            "0": "P",
+            "2": "R",
+            "4": "N",
+            "6": "D",
+            "8": "S"
+          },
+          "notes": "ivanyshyn gives 2=R,4=N,6=D,8=S (byte 1); mustang6g_forum_csv gives 0=parking,2=reverse,4=neutral,6=drive,8=sport at (1-based) byte_position 2 = 0-based byte 1 -- same byte, same values, forum source adds the 0=Park case. Strong cross-confirmation, also confirms the forum CSV's 1-based indexing."
+        }
+      ],
+      "sourceRaw": {
+        "mustang6g_forum_csv": {
+          "Byte_position": 2
+        }
+      }
     },
-
     "0x242": {
-      "idDecimal": 578, "vehicleBus": ["HS1"], "periodMs": 40, "sources": ["ivanyshyn"],
-      "signals": [
-        { "name": "headlight_current_guess", "byteIndex": [2, 3], "type": "unconfirmed", "formula": "(b2<<8)+b3", "notes": "\"correlates with headlights on/off, saw-like graph when engine idles. Current?\"", "confidence": "unconfirmed", "source": "ivanyshyn" },
-        { "name": "voltage", "byteIndex": [4], "type": "linear", "formula": "b4/16", "unit": "V", "notes": "Smoother than 0x082 b4 voltage reading.", "confidence": "community-single-source", "source": "ivanyshyn" }
-      ]
-    },
-
-    "0x2A1": {
-      "idDecimal": 673, "vehicleBus": ["HS3"], "periodMs": null, "sources": ["ivanyshyn", "mustang6g_forum_csv"],
-      "signals": [
-        { "name": "wheel_buttons_right", "byteIndex": [0], "type": "enum",
-          "enum": { "255": "none_pressed", "253": "volume_up", "254": "volume_down", "50": "previous", "51": "next", "79": "menu_M", "69": "phone_up", "70": "phone_down", "48": "voice_command", "68": "mute" },
-          "confidence": "community-cross-confirmed", "source": ["ivanyshyn", "mustang6g_forum_csv"],
-          "notes": "Exact agreement between ivanyshyn (0x32/0x33/0xFD/0xFE/0x44 = prev/next/vol+/vol-/mute at byte 0) and mustang6g_forum_csv (50/51/253/254/68 = same, at byte_position 1 = byte 0) across all 5 overlapping values -- highest cross-confirmation of any signal in this file besides 0x204 rpm and 0x3B5 tire pressure. menu_M/phone_up/phone_down/voice_command/none_pressed are ivanyshyn-only additions." }
+      "idDecimal": 578,
+      "vehicleBus": [
+        "HS1"
       ],
-      "sourceRaw": { "mustang6g_forum_csv": { "Byte_position": 1 } }
+      "signals": [
+        {
+          "name": "headlight_current_guess",
+          "byteIndex": [
+            2,
+            3
+          ],
+          "type": "unconfirmed",
+          "formula": "(b2<<8)+b3",
+          "notes": "\"correlates with headlights on/off, saw-like graph when engine idles. Current?\""
+        },
+        {
+          "name": "voltage",
+          "byteIndex": [
+            4
+          ],
+          "type": "linear",
+          "formula": "b4/16",
+          "unit": "V",
+          "notes": "Smoother than 0x082 b4 voltage reading."
+        }
+      ]
     },
-
+    "0x2A1": {
+      "idDecimal": 673,
+      "vehicleBus": [
+        "HS3"
+      ],
+      "signals": [
+        {
+          "name": "wheel_buttons_right",
+          "byteIndex": [
+            0
+          ],
+          "type": "enum",
+          "enum": {
+            "255": "none_pressed",
+            "253": "volume_up",
+            "254": "volume_down",
+            "50": "previous",
+            "51": "next",
+            "79": "menu_M",
+            "69": "phone_up",
+            "70": "phone_down",
+            "48": "voice_command",
+            "68": "mute"
+          },
+          "notes": "Exact agreement between ivanyshyn (0x32/0x33/0xFD/0xFE/0x44 = prev/next/vol+/vol-/mute at byte 0) and mustang6g_forum_csv (50/51/253/254/68 = same, at byte_position 1 = byte 0) across all 5 overlapping values -- highest cross-confirmation of any signal in this file besides 0x204 rpm and 0x3B5 tire pressure. menu_M/phone_up/phone_down/voice_command/none_pressed are ivanyshyn-only additions."
+        }
+      ],
+      "sourceRaw": {
+        "mustang6g_forum_csv": {
+          "Byte_position": 1
+        }
+      }
+    },
     "0x313": {
-      "idDecimal": 787, "vehicleBus": ["HS3"], "periodMs": null, "sources": ["ivanyshyn"],
+      "idDecimal": 787,
+      "vehicleBus": [
+        "HS3"
+      ],
       "signals": [
-        { "name": "odometer_guess", "byteIndex": [5], "type": "unconfirmed", "confidence": "unconfirmed", "source": "ivanyshyn", "notes": "\"constantly grows, depending on speed. Odometer?\"" }
+        {
+          "name": "odometer_guess",
+          "byteIndex": [
+            5
+          ],
+          "type": "unconfirmed",
+          "notes": "\"constantly grows, depending on speed. Odometer?\""
+        }
       ]
     },
-
     "0x315": {
-      "idDecimal": 789, "vehicleBus": ["HS3"], "periodMs": null, "sources": ["ivanyshyn"],
+      "idDecimal": 789,
+      "vehicleBus": [
+        "HS3"
+      ],
       "signals": [
-        { "name": "accel_pedal_correlated_guess", "byteIndex": [6, 7], "type": "unconfirmed", "formula": "(((b6&3)<<8)+b7)/4", "notes": "\"smooth inertial graph, correlates with acceleration pedal with some delay\".", "confidence": "unconfirmed", "source": "ivanyshyn" }
+        {
+          "name": "accel_pedal_correlated_guess",
+          "byteIndex": [
+            6,
+            7
+          ],
+          "type": "unconfirmed",
+          "formula": "(((b6&3)<<8)+b7)/4",
+          "notes": "\"smooth inertial graph, correlates with acceleration pedal with some delay\"."
+        }
       ]
     },
-
     "0x318": {
-      "idDecimal": 792, "vehicleBus": ["HS3"], "periodMs": null, "sources": ["ivanyshyn"],
+      "idDecimal": 792,
+      "vehicleBus": [
+        "HS3"
+      ],
       "signals": [
-        { "name": "fuel_level_guess", "byteIndex": [5, 6], "type": "unconfirmed", "notes": "\"slowly decreases during run. Gas in tank?\"", "confidence": "unconfirmed", "source": "ivanyshyn" }
+        {
+          "name": "fuel_level_guess",
+          "byteIndex": [
+            5,
+            6
+          ],
+          "type": "unconfirmed",
+          "notes": "\"slowly decreases during run. Gas in tank?\""
+        }
       ]
     },
-
     "0x326": {
-      "idDecimal": 806, "vehicleBus": ["HS1"], "periodMs": null, "sources": ["ivanyshyn"],
+      "idDecimal": 806,
+      "vehicleBus": [
+        "HS1"
+      ],
       "signals": [
-        { "name": "climate_related_guess", "byteIndex": [], "type": "unconfirmed", "confidence": "unconfirmed", "source": "ivanyshyn", "notes": "\"correlates with climate functionality\" -- no byte specified." }
+        {
+          "name": "climate_related_guess",
+          "byteIndex": [],
+          "type": "unconfirmed",
+          "notes": "\"correlates with climate functionality\" -- no byte specified."
+        }
       ]
     },
-
     "0x331": {
-      "idDecimal": 817, "vehicleBus": ["HS1", "HS3"], "periodMs": null, "sources": ["ivanyshyn"],
+      "idDecimal": 817,
+      "vehicleBus": [
+        "HS1",
+        "HS3"
+      ],
       "signals": [
-        { "name": "slow_growth_guess", "byteIndex": [2, 3], "type": "unconfirmed", "confidence": "unconfirmed", "source": "ivanyshyn" },
-        { "name": "ambient_headlight_flag", "byteIndex": [7], "type": "unconfirmed", "notes": "Changes 4/2 when ambient light or headlights on/off.", "confidence": "unconfirmed", "source": "ivanyshyn" }
+        {
+          "name": "slow_growth_guess",
+          "byteIndex": [
+            2,
+            3
+          ],
+          "type": "unconfirmed"
+        },
+        {
+          "name": "ambient_headlight_flag",
+          "byteIndex": [
+            7
+          ],
+          "type": "unconfirmed",
+          "notes": "Changes 4/2 when ambient light or headlights on/off."
+        }
       ]
     },
-
     "0x38D": {
-      "idDecimal": 909, "vehicleBus": ["HS1", "HS3"], "periodMs": null, "sources": ["ivanyshyn"],
+      "idDecimal": 909,
+      "vehicleBus": [
+        "HS1",
+        "HS3"
+      ],
       "signals": [
-        { "name": "alternator_guess", "byteIndex": [4], "type": "unconfirmed", "notes": "Spikes on engine start.", "confidence": "unconfirmed", "source": "ivanyshyn" }
+        {
+          "name": "alternator_guess",
+          "byteIndex": [
+            4
+          ],
+          "type": "unconfirmed",
+          "notes": "Spikes on engine start."
+        }
       ]
     },
-
     "0x3A8": {
-      "idDecimal": 936, "vehicleBus": ["HS1"], "periodMs": null, "sources": ["ivanyshyn"],
+      "idDecimal": 936,
+      "vehicleBus": [
+        "HS1"
+      ],
       "signals": [
-        { "name": "steering", "byteIndex": [2, 3], "type": "raw", "formula": "(b2<<8)+b3", "notes": "Another steering signal; possibly redundant with 0x076/0x082/0x085.", "confidence": "community-single-source", "source": "ivanyshyn" }
+        {
+          "name": "steering",
+          "byteIndex": [
+            2,
+            3
+          ],
+          "type": "raw",
+          "formula": "(b2<<8)+b3",
+          "notes": "Another steering signal; possibly redundant with 0x076/0x082/0x085."
+        }
       ]
     },
-
     "0x3AA": {
-      "idDecimal": 938, "vehicleBus": ["HS1", "HS3"], "periodMs": null, "sources": ["ivanyshyn"],
+      "idDecimal": 938,
+      "vehicleBus": [
+        "HS1",
+        "HS3"
+      ],
       "signals": [
-        { "name": "unexplained_transient", "byteIndex": [1], "type": "unconfirmed", "notes": "32 -> 33 -> 32 on engine start.", "confidence": "unconfirmed", "source": "ivanyshyn" }
+        {
+          "name": "unexplained_transient",
+          "byteIndex": [
+            1
+          ],
+          "type": "unconfirmed",
+          "notes": "32 -> 33 -> 32 on engine start."
+        }
       ]
     },
-
     "0x3B2": {
-      "idDecimal": 946, "vehicleBus": ["HS3"], "periodMs": null, "sources": ["ivanyshyn"],
+      "idDecimal": 946,
+      "vehicleBus": [
+        "HS3"
+      ],
       "notes": "Source: \"same as 0x3B3\" -- see that message.",
       "signals": []
     },
-
     "0x3B3": {
-      "idDecimal": 947, "vehicleBus": ["HS1", "HS3"], "periodMs": null, "sources": ["ivanyshyn", "eturner3", "mustang6g_forum_csv"],
+      "idDecimal": 947,
+      "vehicleBus": [
+        "HS1",
+        "HS3"
+      ],
       "sampleMessage": "40 88 00 12 10 00 80 02 (eturner3)",
       "notes": "eturner3: if this message is not sent, the instrument cluster will not even boot up when power is supplied -- treat with care if transmitting on this ID.",
       "signals": [
-        { "name": "headlamp_status", "byteIndex": [0], "type": "enum", "enum": { "64": "off", "68": "on" }, "confidence": "community-cross-confirmed", "source": ["ivanyshyn", "eturner3"] },
-        { "name": "ambient_light_mode", "byteIndex": [1], "type": "conflict", "confidence": "conflict", "source": ["ivanyshyn", "eturner3", "mustang6g_forum_csv"],
-          "enum": { "72": "daylight_DRL", "136": "twilight_night", "74": "hazard" },
+        {
+          "name": "headlamp_status",
+          "byteIndex": [
+            0
+          ],
+          "type": "enum",
+          "enum": {
+            "64": "off",
+            "68": "on"
+          }
+        },
+        {
+          "name": "ambient_light_mode",
+          "byteIndex": [
+            1
+          ],
+          "type": "conflict",
+          "enum": {
+            "72": "daylight_DRL",
+            "136": "twilight_night",
+            "74": "hazard"
+          },
           "notes": "CONFLICT: ivanyshyn/eturner3 agree 0x48=daylight/DRL, 0x88=twilight/night, 0x4A=hazard. mustang6g_forum_csv instead reports 136 (=0x88, the same value ivanyshyn/eturner3 call \"twilight/night\") as hazard-OFF, and 137/138 (0x89/0x8A) as hazard-ON, at the same byte. These directly disagree on what 0x88 means -- verify empirically before relying on this byte for hazard-light logic.",
-          "sourceRaw": { "mustang6g_forum_csv": { "Byte_position": 2, "values": { "136": "hazard_warning_off", "137": "hazard_warning_on", "138": "hazard_warning_on" } } } },
-        { "name": "backlight_counter_and_auto", "byteIndex": [2], "type": "unconfirmed", "notes": "ivanyshyn: counter for +/- instrument cluster backlight buttons in low nibble; 0x1_ = headlamp on non-auto, 0xC_ = headlamp on auto (daylight).", "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "backlight_dimming", "byteIndex": [3], "type": "enum", "enum": { "0": "off", "10": "on_mycolor", "16": "on_white" }, "notes": "eturner3's simpler 3-state read of the same byte ivanyshyn describes as 0x0C dashboard-dark-mode / 0x0D-0x12 dimming range.", "confidence": "community-cross-confirmed", "source": ["ivanyshyn", "eturner3"] },
-        { "name": "turn_signals_off_on", "byteIndex": [4], "type": "enum", "enum": { "16": "all_off", "24": "any_on" }, "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "backlight_day_night", "byteIndex": [5], "type": "enum", "enum": { "0": "day_mode", "5": "night_mode" }, "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "left_turn_signal_flag", "byteIndex": [6], "type": "enum", "enum": { "64": "left_on" }, "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "parking_brake", "byteIndex": [6], "type": "enum", "enum": { "0": "off", "128": "on" }, "notes": "eturner3 reads 0x80/0xC0=on, 0x00=off from the same byte ivanyshyn assigns to the left-turn-signal flag above -- these may coexist as different bit ranges within byte 6 rather than truly conflict; not resolved here.", "confidence": "community-single-source", "source": "eturner3" },
-        { "name": "fog_hazard_right_turn", "byteIndex": [7], "type": "bitfield", "bits": { "0": "fog_light" }, "enum": { "128": "hazard_range", "192": "right_turn_signal_range" }, "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "doors_and_hood", "byteIndex": [7], "type": "enum",
-          "enum": { "2": "all_closed", "50": "driver_and_passenger_open", "42": "driver_and_hood_open" },
-          "notes": "eturner3: first hex digit 0/1/2/3 = closed/passenger-ajar/driver-ajar/both-ajar; second hex digit 2=closed, A=hood-ajar. More granular than ivanyshyn's simpler byte-7 bitfield above for the same byte -- likely overlapping/compatible interpretations of different nibbles, not verified.",
-          "confidence": "community-single-source", "source": "eturner3" }
+          "sourceRaw": {
+            "mustang6g_forum_csv": {
+              "Byte_position": 2,
+              "values": {
+                "136": "hazard_warning_off",
+                "137": "hazard_warning_on",
+                "138": "hazard_warning_on"
+              }
+            }
+          }
+        },
+        {
+          "name": "backlight_counter_and_auto",
+          "byteIndex": [
+            2
+          ],
+          "type": "unconfirmed",
+          "notes": "ivanyshyn: counter for +/- instrument cluster backlight buttons in low nibble; 0x1_ = headlamp on non-auto, 0xC_ = headlamp on auto (daylight)."
+        },
+        {
+          "name": "backlight_dimming",
+          "byteIndex": [
+            3
+          ],
+          "type": "enum",
+          "enum": {
+            "0": "off",
+            "10": "on_mycolor",
+            "16": "on_white"
+          },
+          "notes": "eturner3's simpler 3-state read of the same byte ivanyshyn describes as 0x0C dashboard-dark-mode / 0x0D-0x12 dimming range."
+        },
+        {
+          "name": "turn_signals_off_on",
+          "byteIndex": [
+            4
+          ],
+          "type": "enum",
+          "enum": {
+            "16": "all_off",
+            "24": "any_on"
+          }
+        },
+        {
+          "name": "backlight_day_night",
+          "byteIndex": [
+            5
+          ],
+          "type": "enum",
+          "enum": {
+            "0": "day_mode",
+            "5": "night_mode"
+          }
+        },
+        {
+          "name": "left_turn_signal_flag",
+          "byteIndex": [
+            6
+          ],
+          "type": "enum",
+          "enum": {
+            "64": "left_on"
+          }
+        },
+        {
+          "name": "parking_brake",
+          "byteIndex": [
+            6
+          ],
+          "type": "enum",
+          "enum": {
+            "0": "off",
+            "128": "on"
+          },
+          "notes": "eturner3 reads 0x80/0xC0=on, 0x00=off from the same byte ivanyshyn assigns to the left-turn-signal flag above -- these may coexist as different bit ranges within byte 6 rather than truly conflict; not resolved here."
+        },
+        {
+          "name": "fog_hazard_right_turn",
+          "byteIndex": [
+            7
+          ],
+          "type": "bitfield",
+          "bits": {
+            "0": "fog_light"
+          },
+          "enum": {
+            "128": "hazard_range",
+            "192": "right_turn_signal_range"
+          }
+        },
+        {
+          "name": "doors_and_hood",
+          "byteIndex": [
+            7
+          ],
+          "type": "enum",
+          "enum": {
+            "2": "all_closed",
+            "50": "driver_and_passenger_open",
+            "42": "driver_and_hood_open"
+          },
+          "notes": "eturner3: first hex digit 0/1/2/3 = closed/passenger-ajar/driver-ajar/both-ajar; second hex digit 2=closed, A=hood-ajar. More granular than ivanyshyn's simpler byte-7 bitfield above for the same byte -- likely overlapping/compatible interpretations of different nibbles, not verified."
+        }
       ]
     },
-
     "0x3B5": {
-      "idDecimal": 949, "vehicleBus": ["HS1", "HS3"], "periodMs": null, "sources": ["ivanyshyn", "eturner3"],
+      "idDecimal": 949,
+      "vehicleBus": [
+        "HS1",
+        "HS3"
+      ],
       "sampleMessage": "00 CE 00 CE 00 CE 00 CE (eturner3)",
       "signals": [
-        { "name": "tire_pressure_fl", "byteIndex": [1], "type": "linear", "formula": "b1 * 0.1450377377", "unit": "psi", "notes": "Raw units kPa.", "confidence": "community-cross-confirmed", "source": ["ivanyshyn", "eturner3"] },
-        { "name": "tire_pressure_fr", "byteIndex": [3], "type": "linear", "formula": "b3 * 0.1450377377", "unit": "psi", "confidence": "community-cross-confirmed", "source": ["ivanyshyn", "eturner3"] },
-        { "name": "tire_pressure_rr", "byteIndex": [5], "type": "linear", "formula": "b5 * 0.1450377377", "unit": "psi", "confidence": "community-cross-confirmed", "source": ["ivanyshyn", "eturner3"] },
-        { "name": "tire_pressure_rl", "byteIndex": [7], "type": "linear", "formula": "b7 * 0.1450377377", "unit": "psi", "confidence": "community-cross-confirmed", "source": ["ivanyshyn", "eturner3"] }
+        {
+          "name": "tire_pressure_fl",
+          "byteIndex": [
+            1
+          ],
+          "type": "linear",
+          "formula": "b1 * 0.1450377377",
+          "unit": "psi",
+          "notes": "Raw units kPa."
+        },
+        {
+          "name": "tire_pressure_fr",
+          "byteIndex": [
+            3
+          ],
+          "type": "linear",
+          "formula": "b3 * 0.1450377377",
+          "unit": "psi"
+        },
+        {
+          "name": "tire_pressure_rr",
+          "byteIndex": [
+            5
+          ],
+          "type": "linear",
+          "formula": "b5 * 0.1450377377",
+          "unit": "psi"
+        },
+        {
+          "name": "tire_pressure_rl",
+          "byteIndex": [
+            7
+          ],
+          "type": "linear",
+          "formula": "b7 * 0.1450377377",
+          "unit": "psi"
+        }
       ]
     },
-
     "0x3C3": {
-      "idDecimal": 963, "vehicleBus": [], "periodMs": null, "sources": ["eturner3", "mustang6g_forum_csv"],
+      "idDecimal": 963,
+      "vehicleBus": [],
       "sampleMessage": "40 00 10 00 00 00 80 00 (eturner3)",
       "signals": [
-        { "name": "high_beam_status", "byteIndex": [0], "type": "unconfirmed", "notes": "eturner3: 0x4_/0x5_ meaning unknown; 0x_C=high beams off, 0x_E=high beams on.", "confidence": "unconfirmed", "source": "eturner3" },
-        { "name": "dimming", "byteIndex": [1], "type": "unconfirmed", "notes": "eturner3: first nibble 0/4/8/C, second nibble C/D/8 -- pattern not fully decoded.", "confidence": "unconfirmed", "source": "eturner3" },
-        { "name": "parking_brake_eturner3", "byteIndex": [2], "type": "enum", "enum": { "0": "off", "16": "on" }, "notes": "eturner3's nibble-based reading of byte 2 (0x0_=off, 0x1_=on).", "confidence": "community-single-source", "source": "eturner3" },
-        { "name": "doors_forum", "byteIndex": [1], "type": "enum", "enum": { "12": "doors_closed", "8": "any_door_open" }, "sourceRaw": { "Byte_position": 2 }, "confidence": "community-single-source", "source": "mustang6g_forum_csv",
-          "notes": "mustang6g_forum_csv's byte_position 2 (1-based) converts to byte 1 (0-based) here -- a DIFFERENT byte than eturner3's parking-brake byte 2 above, so these two signals are complementary, not conflicting, despite both being about this same message ID." },
-        { "name": "brake_warning", "byteIndex": [3], "type": "unconfirmed", "notes": "eturner3: \"Parking Brake On Warning / Brake Fluid Level Low warning\".", "confidence": "unconfirmed", "source": "eturner3" },
-        { "name": "byte6_unknown", "byteIndex": [6], "type": "unconfirmed", "enum": { "0": "unknown", "128": "unknown" }, "confidence": "unconfirmed", "source": "eturner3" }
+        {
+          "name": "high_beam_status",
+          "byteIndex": [
+            0
+          ],
+          "type": "unconfirmed",
+          "notes": "eturner3: 0x4_/0x5_ meaning unknown; 0x_C=high beams off, 0x_E=high beams on."
+        },
+        {
+          "name": "dimming",
+          "byteIndex": [
+            1
+          ],
+          "type": "unconfirmed",
+          "notes": "eturner3: first nibble 0/4/8/C, second nibble C/D/8 -- pattern not fully decoded."
+        },
+        {
+          "name": "parking_brake_eturner3",
+          "byteIndex": [
+            2
+          ],
+          "type": "enum",
+          "enum": {
+            "0": "off",
+            "16": "on"
+          },
+          "notes": "eturner3's nibble-based reading of byte 2 (0x0_=off, 0x1_=on)."
+        },
+        {
+          "name": "doors_forum",
+          "byteIndex": [
+            1
+          ],
+          "type": "enum",
+          "enum": {
+            "12": "doors_closed",
+            "8": "any_door_open"
+          },
+          "sourceRaw": {
+            "Byte_position": 2
+          },
+          "notes": "mustang6g_forum_csv's byte_position 2 (1-based) converts to byte 1 (0-based) here -- a DIFFERENT byte than eturner3's parking-brake byte 2 above, so these two signals are complementary, not conflicting, despite both being about this same message ID."
+        },
+        {
+          "name": "brake_warning",
+          "byteIndex": [
+            3
+          ],
+          "type": "unconfirmed",
+          "notes": "eturner3: \"Parking Brake On Warning / Brake Fluid Level Low warning\"."
+        },
+        {
+          "name": "byte6_unknown",
+          "byteIndex": [
+            6
+          ],
+          "type": "unconfirmed",
+          "enum": {
+            "0": "unknown",
+            "128": "unknown"
+          }
+        }
       ]
     },
-
     "0x3C8": {
-      "idDecimal": 968, "vehicleBus": ["HS1"], "periodMs": 1000, "sources": ["ivanyshyn"],
+      "idDecimal": 968,
+      "vehicleBus": [
+        "HS1"
+      ],
       "signals": [
-        { "name": "mycolor_rgb", "byteIndex": [0, 4, 5], "type": "raw", "notes": "RGB components of the ambient \"My Color\" lighting.", "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "drive_mode", "byteIndex": [2], "type": "enum", "enum": { "0": "normal", "1": "sport", "2": "snow", "3": "track" }, "confidence": "community-single-source", "source": "ivanyshyn" }
+        {
+          "name": "mycolor_rgb",
+          "byteIndex": [
+            0,
+            4,
+            5
+          ],
+          "type": "raw",
+          "notes": "RGB components of the ambient \"My Color\" lighting."
+        },
+        {
+          "name": "drive_mode",
+          "byteIndex": [
+            2
+          ],
+          "type": "enum",
+          "enum": {
+            "0": "normal",
+            "1": "sport",
+            "2": "snow",
+            "3": "track"
+          }
+        }
       ]
     },
-
     "0x3D0": {
-      "idDecimal": 976, "vehicleBus": ["HS3"], "periodMs": null, "sources": ["ivanyshyn"],
+      "idDecimal": 976,
+      "vehicleBus": [
+        "HS3"
+      ],
       "signals": [
-        { "name": "slow_growth_guess", "byteIndex": [2, 3], "type": "unconfirmed", "notes": "Slowly grows during engine off, idle, and run.", "confidence": "unconfirmed", "source": "ivanyshyn" }
+        {
+          "name": "slow_growth_guess",
+          "byteIndex": [
+            2,
+            3
+          ],
+          "type": "unconfirmed",
+          "notes": "Slowly grows during engine off, idle, and run."
+        }
       ]
     },
-
     "0x40A": {
-      "idDecimal": 1034, "vehicleBus": ["HS1", "HS3"], "periodMs": null, "sources": ["ivanyshyn"],
+      "idDecimal": 1034,
+      "vehicleBus": [
+        "HS1",
+        "HS3"
+      ],
       "notes": "VIN broadcast across 3 sequential frames, distinguished by byte 1's sequence number. Example from source: frames C1 00 31 46 41 36 50 38 / C1 01 43 46 38 47 35 32 / C1 02 33 34 31 39 37 FF decode to VIN 1FA6P8CF8G5234197.",
       "signals": [
-        { "name": "vin_marker", "byteIndex": [0], "type": "enum", "enum": { "193": "vin_frame_marker" }, "notes": "0xC1." },
-        { "name": "vin_sequence", "byteIndex": [1], "type": "enum", "enum": { "0": "chars_1_6", "1": "chars_7_12", "2": "chars_13_17" } },
-        { "name": "vin_chars_ascii", "byteIndex": [2, 3, 4, 5, 6, 7], "type": "raw", "notes": "ASCII-encoded VIN characters for this sequence chunk (last chunk pads with 0xFF).", "confidence": "community-single-source", "source": "ivanyshyn" }
+        {
+          "name": "vin_marker",
+          "byteIndex": [
+            0
+          ],
+          "type": "enum",
+          "enum": {
+            "193": "vin_frame_marker"
+          },
+          "notes": "0xC1."
+        },
+        {
+          "name": "vin_sequence",
+          "byteIndex": [
+            1
+          ],
+          "type": "enum",
+          "enum": {
+            "0": "chars_1_6",
+            "1": "chars_7_12",
+            "2": "chars_13_17"
+          }
+        },
+        {
+          "name": "vin_chars_ascii",
+          "byteIndex": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "type": "raw",
+          "notes": "ASCII-encoded VIN characters for this sequence chunk (last chunk pads with 0xFF)."
+        }
       ]
     },
-
     "0x415": {
-      "idDecimal": 1045, "vehicleBus": ["HS1", "HS3"], "periodMs": null, "sources": ["ivanyshyn"],
+      "idDecimal": 1045,
+      "vehicleBus": [
+        "HS1",
+        "HS3"
+      ],
       "signals": [
-        { "name": "speed", "byteIndex": [0, 1], "type": "linear", "formula": "((b0<<8)+b1)/100", "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "unconfirmed_sawtooth", "byteIndex": [2, 3], "type": "unconfirmed", "confidence": "unconfirmed", "source": "ivanyshyn" },
-        { "name": "unconfirmed_graph", "byteIndex": [6, 7], "type": "unconfirmed", "notes": "Not understandable graph during engine off, idle, and run.", "confidence": "unconfirmed", "source": "ivanyshyn" }
+        {
+          "name": "speed",
+          "byteIndex": [
+            0,
+            1
+          ],
+          "type": "linear",
+          "formula": "((b0<<8)+b1)/100"
+        },
+        {
+          "name": "unconfirmed_sawtooth",
+          "byteIndex": [
+            2,
+            3
+          ],
+          "type": "unconfirmed"
+        },
+        {
+          "name": "unconfirmed_graph",
+          "byteIndex": [
+            6,
+            7
+          ],
+          "type": "unconfirmed",
+          "notes": "Not understandable graph during engine off, idle, and run."
+        }
       ]
     },
-
     "0x416": {
-      "idDecimal": 1046, "vehicleBus": ["HS1", "HS3"], "periodMs": 100, "sources": ["ivanyshyn", "eturner3"],
+      "idDecimal": 1046,
+      "vehicleBus": [
+        "HS1",
+        "HS3"
+      ],
       "sampleMessage": "50 00 FE 00 01 00 00 00 (eturner3)",
       "signals": [
-        { "name": "brake_pedal_counter", "byteIndex": [0], "type": "unconfirmed", "notes": "Some bits work as a counter.", "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "tc_autobrake_flag", "byteIndex": [1], "type": "bitfield", "bits": { "7": "tc_autobraking_active" }, "notes": "Referenced by 0x07D's brake_pressure_tc signal.", "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "warning_lights", "byteIndex": [1], "type": "enum", "enum": { "32": "check_brake_system", "64": "advancetrac_warning" }, "notes": "eturner3's reading of the same byte as the tc_autobrake_flag bit above.", "confidence": "community-single-source", "source": "eturner3" },
-        { "name": "tc_mode", "byteIndex": [5], "type": "enum", "enum": { "0": "tc_on", "2": "tc_indicator_solid", "8": "tc_off", "15": "tc_indicator_flashing", "24": "atc_off_7s_hold", "128": "tc_off_indicator" }, "notes": "Merged from ivanyshyn (0x0=on,0x8=off,0x18=ATC-off-7s-hold) and eturner3 (0x00=off,0x02=solid,0x0F=flashing,0x80=TC-off-indicator,0x18=ATC-off) -- both describing the same byte, values don't overlap so merged rather than conflicting.", "confidence": "community-cross-confirmed", "source": ["ivanyshyn", "eturner3"] },
-        { "name": "abs_light", "byteIndex": [6], "type": "enum", "enum": { "0": "off", "64": "solid", "128": "flash_slow", "208": "flash_fast" }, "confidence": "community-single-source", "source": "eturner3" }
+        {
+          "name": "brake_pedal_counter",
+          "byteIndex": [
+            0
+          ],
+          "type": "unconfirmed",
+          "notes": "Some bits work as a counter."
+        },
+        {
+          "name": "tc_autobrake_flag",
+          "byteIndex": [
+            1
+          ],
+          "type": "bitfield",
+          "bits": {
+            "7": "tc_autobraking_active"
+          },
+          "notes": "Referenced by 0x07D's brake_pressure_tc signal."
+        },
+        {
+          "name": "warning_lights",
+          "byteIndex": [
+            1
+          ],
+          "type": "enum",
+          "enum": {
+            "32": "check_brake_system",
+            "64": "advancetrac_warning"
+          },
+          "notes": "eturner3's reading of the same byte as the tc_autobrake_flag bit above."
+        },
+        {
+          "name": "tc_mode",
+          "byteIndex": [
+            5
+          ],
+          "type": "enum",
+          "enum": {
+            "0": "tc_on",
+            "2": "tc_indicator_solid",
+            "8": "tc_off",
+            "15": "tc_indicator_flashing",
+            "24": "atc_off_7s_hold",
+            "128": "tc_off_indicator"
+          },
+          "notes": "Merged from ivanyshyn (0x0=on,0x8=off,0x18=ATC-off-7s-hold) and eturner3 (0x00=off,0x02=solid,0x0F=flashing,0x80=TC-off-indicator,0x18=ATC-off) -- both describing the same byte, values don't overlap so merged rather than conflicting."
+        },
+        {
+          "name": "abs_light",
+          "byteIndex": [
+            6
+          ],
+          "type": "enum",
+          "enum": {
+            "0": "off",
+            "64": "solid",
+            "128": "flash_slow",
+            "208": "flash_fast"
+          }
+        }
       ]
     },
-
     "0x421": {
-      "idDecimal": 1057, "vehicleBus": ["HS1", "HS3"], "periodMs": null, "sources": ["ivanyshyn"],
+      "idDecimal": 1057,
+      "vehicleBus": [
+        "HS1",
+        "HS3"
+      ],
       "signals": [
-        { "name": "voltage_current_guess_1", "byteIndex": [2], "type": "unconfirmed", "notes": "Smooth saw-like graph during run, changes on engine start.", "confidence": "unconfirmed", "source": "ivanyshyn" },
-        { "name": "voltage_current_guess_2", "byteIndex": [6], "type": "unconfirmed", "notes": "Same behavior as byte 2 guess above.", "confidence": "unconfirmed", "source": "ivanyshyn" }
+        {
+          "name": "voltage_current_guess_1",
+          "byteIndex": [
+            2
+          ],
+          "type": "unconfirmed",
+          "notes": "Smooth saw-like graph during run, changes on engine start."
+        },
+        {
+          "name": "voltage_current_guess_2",
+          "byteIndex": [
+            6
+          ],
+          "type": "unconfirmed",
+          "notes": "Same behavior as byte 2 guess above."
+        }
       ]
     },
-
     "0x42D": {
-      "idDecimal": 1069, "vehicleBus": ["HS1", "HS3"], "periodMs": null, "sources": ["ivanyshyn"],
+      "idDecimal": 1069,
+      "vehicleBus": [
+        "HS1",
+        "HS3"
+      ],
       "signals": [
-        { "name": "current_guess", "byteIndex": [2], "type": "unconfirmed", "notes": "Opposite to speed: low at idle, grows on engine start, decreases when speeding up.", "confidence": "unconfirmed", "source": "ivanyshyn" }
+        {
+          "name": "current_guess",
+          "byteIndex": [
+            2
+          ],
+          "type": "unconfirmed",
+          "notes": "Opposite to speed: low at idle, grows on engine start, decreases when speeding up."
+        }
       ]
     },
-
     "0x42F": {
-      "idDecimal": 1071, "vehicleBus": ["HS1", "HS3"], "periodMs": null, "sources": ["ivanyshyn"],
+      "idDecimal": 1071,
+      "vehicleBus": [
+        "HS1",
+        "HS3"
+      ],
       "signals": [
-        { "name": "torque_guess", "byteIndex": [4, 5], "type": "linear", "formula": "((b4&3)<<8)+b5-256", "notes": "Source: \"looks like torque, the same as 0x167 b1<<8+b2\".", "confidence": "unconfirmed", "source": "ivanyshyn" }
+        {
+          "name": "torque_guess",
+          "byteIndex": [
+            4,
+            5
+          ],
+          "type": "linear",
+          "formula": "((b4&3)<<8)+b5-256",
+          "notes": "Source: \"looks like torque, the same as 0x167 b1<<8+b2\"."
+        }
       ]
     },
-
     "0x430": {
-      "idDecimal": 1072, "vehicleBus": [], "periodMs": null, "sources": ["eturner3"],
+      "idDecimal": 1072,
+      "vehicleBus": [],
       "sampleMessage": "37 01 B9 AA C0 5E 37 5C",
       "notes": "Cluster rejects values too far from the currently-programmed mileage (shows dashes instead) -- not freely writable for testing.",
       "signals": [
-        { "name": "odometer_km", "byteIndex": [1, 2, 3], "type": "raw", "unit": "km", "notes": "24-bit value across 3 bytes.", "confidence": "community-single-source", "source": "eturner3" }
+        {
+          "name": "odometer_km",
+          "byteIndex": [
+            1,
+            2,
+            3
+          ],
+          "type": "raw",
+          "unit": "km",
+          "notes": "24-bit value across 3 bytes."
+        }
       ]
     },
-
     "0x431": {
-      "idDecimal": 1073, "vehicleBus": [], "periodMs": null, "sources": ["eturner3"],
+      "idDecimal": 1073,
+      "vehicleBus": [],
       "sampleMessage": "05 1D 40 EB B7 83 46 00",
       "notes": "Controls transmission warning messages (Adaptive Mode, Indicated Mode, Warming Up, Adjusted) -- exact bit mapping not identified by source.",
       "signals": []
     },
-
     "0x43D": {
-      "idDecimal": 1085, "vehicleBus": ["HS1"], "periodMs": null, "sources": ["ivanyshyn"],
+      "idDecimal": 1085,
+      "vehicleBus": [
+        "HS1"
+      ],
       "signals": [
-        { "name": "rpm_accel_correlated_guess", "byteIndex": [2, 3], "type": "unconfirmed", "notes": "b2 and b3 opposite to each other, correlates with RPM/acceleration.", "confidence": "unconfirmed", "source": "ivanyshyn" }
+        {
+          "name": "rpm_accel_correlated_guess",
+          "byteIndex": [
+            2,
+            3
+          ],
+          "type": "unconfirmed",
+          "notes": "b2 and b3 opposite to each other, correlates with RPM/acceleration."
+        }
       ]
     },
-
     "0x43E": {
-      "idDecimal": 1086, "vehicleBus": ["HS1", "HS3"], "periodMs": null, "sources": ["ivanyshyn"],
+      "idDecimal": 1086,
+      "vehicleBus": [
+        "HS1",
+        "HS3"
+      ],
       "signals": [
-        { "name": "opposite_to_engine_load", "byteIndex": [3], "type": "unconfirmed", "notes": "Opposite to engine_load (b5<<8+b6).", "confidence": "unconfirmed", "source": "ivanyshyn" },
-        { "name": "engine_load", "byteIndex": [5, 6], "type": "linear", "formula": "((b5<<8)+b6)/72-140", "unit": "%", "confidence": "community-single-source", "source": "ivanyshyn" }
+        {
+          "name": "opposite_to_engine_load",
+          "byteIndex": [
+            3
+          ],
+          "type": "unconfirmed",
+          "notes": "Opposite to engine_load (b5<<8+b6)."
+        },
+        {
+          "name": "engine_load",
+          "byteIndex": [
+            5,
+            6
+          ],
+          "type": "linear",
+          "formula": "((b5<<8)+b6)/72-140",
+          "unit": "%"
+        }
       ]
     },
-
     "0x4B0": {
-      "idDecimal": 1200, "vehicleBus": ["HS1"], "periodMs": null, "sources": ["ivanyshyn", "mustang6g_forum_csv"],
+      "idDecimal": 1200,
+      "vehicleBus": [
+        "HS1"
+      ],
       "signals": [
-        { "name": "braking_pressure", "byteIndex": [5, 6], "type": "raw", "formula": "(b5<<8)+b6", "confidence": "community-single-source", "source": "ivanyshyn" },
-        { "name": "brake_pedal_position", "byteIndex": [5], "type": "raw", "sourceRaw": { "Byte_position": 6 }, "confidence": "community-cross-confirmed", "source": "mustang6g_forum_csv",
-          "notes": "mustang6g_forum_csv's byte_position 6 (1-based) converts to byte 5 (0-based) -- the high byte of ivanyshyn's 2-byte braking_pressure signal above. Likely the same underlying signal at coarser (single-byte) resolution rather than a separate value." }
+        {
+          "name": "braking_pressure",
+          "byteIndex": [
+            5,
+            6
+          ],
+          "type": "raw",
+          "formula": "(b5<<8)+b6"
+        },
+        {
+          "name": "brake_pedal_position",
+          "byteIndex": [
+            5
+          ],
+          "type": "raw",
+          "sourceRaw": {
+            "Byte_position": 6
+          },
+          "notes": "mustang6g_forum_csv's byte_position 6 (1-based) converts to byte 5 (0-based) -- the high byte of ivanyshyn's 2-byte braking_pressure signal above. Likely the same underlying signal at coarser (single-byte) resolution rather than a separate value."
+        }
       ]
     },
-
     "0x4C": {
-      "idDecimal": 76, "vehicleBus": [], "periodMs": null, "sources": ["eturner3"],
+      "idDecimal": 76,
+      "vehicleBus": [],
       "sampleMessage": "10 AF FF 00 00 00 00 00",
       "notes": "CAUTION: this ID (0x4C, 2 hex digits) is noticeably shorter/lower than every other ID in this database (all others are in the 0x07x-0x4Bx range) -- possibly a source transcription shorthand or truncation rather than the literal arbitration ID. Verify against your own capture before relying on it; the signal content below (airbag/seatbelt) is otherwise clearly described.",
       "signals": [
-        { "name": "airbag_indicator", "byteIndex": [0], "type": "enum", "enum": { "0": "off_nibble_0x0_", "64": "on_nibble_0x4_", "128": "flashing_nibble_0x8_" }, "confidence": "community-single-source", "source": "eturner3" },
-        { "name": "seatbelt_indicator", "byteIndex": [1], "type": "enum", "enum": { "0": "no_icon", "175": "both_undone", "95": "passenger_and_driver_on", "111": "driver_only_on", "159": "passenger_only_on" }, "confidence": "community-single-source", "source": "eturner3" }
+        {
+          "name": "airbag_indicator",
+          "byteIndex": [
+            0
+          ],
+          "type": "enum",
+          "enum": {
+            "0": "off_nibble_0x0_",
+            "64": "on_nibble_0x4_",
+            "128": "flashing_nibble_0x8_"
+          }
+        },
+        {
+          "name": "seatbelt_indicator",
+          "byteIndex": [
+            1
+          ],
+          "type": "enum",
+          "enum": {
+            "0": "no_icon",
+            "175": "both_undone",
+            "95": "passenger_and_driver_on",
+            "111": "driver_only_on",
+            "159": "passenger_only_on"
+          }
+        }
       ]
     }
   }
