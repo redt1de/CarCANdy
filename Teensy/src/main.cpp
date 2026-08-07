@@ -33,45 +33,45 @@ void reboot() {
 // // real frame takes (logging, ESP32 stream, plugin dispatch), sweeping
 // // 500-9000 RPM up and down so ShiftLightPlugin's tach/flash modes can be
 // // exercised on the bench.
-// void testShiftLightSweep() {
-//   constexpr int32_t kMinRpm = 500;
-//   constexpr int32_t kMaxRpm = 9000;
-//   constexpr int32_t kStepRpm = 50;
-//   constexpr unsigned long kStepIntervalMs =
-//       20; // roughly matches 0x204's real cadence
+void testShiftLightSweep() {
+  constexpr int32_t kMinRpm = 500;
+  constexpr int32_t kMaxRpm = 9000;
+  constexpr int32_t kStepRpm = 50;
+  constexpr unsigned long kStepIntervalMs =
+      20; // roughly matches 0x204's real cadence
 
-//   static int32_t rpm = kMinRpm;
-//   static int8_t direction = 1;
-//   static unsigned long lastStepMs = 0;
+  static int32_t rpm = kMinRpm;
+  static int8_t direction = 1;
+  static unsigned long lastStepMs = 0;
 
-//   const unsigned long now = millis();
-//   if (now - lastStepMs < kStepIntervalMs) {
-//     return;
-//   }
-//   lastStepMs = now;
+  const unsigned long now = millis();
+  if (now - lastStepMs < kStepIntervalMs) {
+    return;
+  }
+  lastStepMs = now;
 
-//   rpm += direction * kStepRpm;
-//   if (rpm >= kMaxRpm) {
-//     rpm = kMaxRpm;
-//     direction = -1;
-//   } else if (rpm <= kMinRpm) {
-//     rpm = kMinRpm;
-//     direction = 1;
-//   }
+  rpm += direction * kStepRpm;
+  if (rpm >= kMaxRpm) {
+    rpm = kMaxRpm;
+    direction = -1;
+  } else if (rpm <= kMinRpm) {
+    rpm = kMinRpm;
+    direction = 1;
+  }
 
-//   // Inverse of ShiftLightPlugin::onCanFrame()'s (A*256+B)*2 decode.
-//   const uint16_t raw = static_cast<uint16_t>(rpm / 2);
+  // Inverse of ShiftLightPlugin::onCanFrame()'s (A*256+B)*2 decode.
+  const uint16_t raw = static_cast<uint16_t>(rpm / 2);
 
-//   CarCANdy::CanFrame frame{};
-//   frame.bus = 1;
-//   frame.id = 0x204;
-//   frame.dlc = 8;
-//   frame.timestampMs = now;
-//   frame.data[3] = static_cast<uint8_t>(raw >> 8);
-//   frame.data[4] = static_cast<uint8_t>(raw & 0xFF);
+  CarCANdy::CanFrame frame{};
+  frame.bus = 1;
+  frame.id = 0x204;
+  frame.dlc = 8;
+  frame.timestampMs = now;
+  frame.data[3] = static_cast<uint8_t>(raw >> 8);
+  frame.data[4] = static_cast<uint8_t>(raw & 0xFF);
 
-//   onCanFrame(frame);
-// }
+  onCanFrame(frame);
+}
 
 void setup() {
   pinMode(RESET_PIN, INPUT_PULLUP);

@@ -3,8 +3,9 @@
 A small Go CLI for looking up CAN IDs/signals in a CarCANdy [CANDB](../DOC/CANDB/README.md)
 JSON file, and for decoding a CarCANdy SD-card log file against it.
 
-Built on [cobra](https://github.com/spf13/cobra) (via pflag), plus `go/parser`
-to evaluate the database's `formula` strings, e.g. `((b5<<8)+b6)/100`.
+Built on [cobra](https://github.com/spf13/cobra) (via pflag), [go.bug.st/serial](https://github.com/bugst/go-serial)
+for `candb live`, plus `go/parser` to evaluate the database's `formula`
+strings, e.g. `((b5<<8)+b6)/100`.
 
 ## Build
 
@@ -68,6 +69,32 @@ Flags can go before or after the log file path -- pflag (cobra's flag
 parser) handles both. Long flags need the double dash (`--unknown`); a
 single dash is reserved for shorthand letters, which this CLI doesn't define
 any of.
+
+### `candb live`
+
+Same as `candb parse`, but reads live off the Teensy's Serial (USB) port
+instead of a finished SD log file -- decodes frames as they arrive, and runs
+until interrupted (Ctrl+C) or the port closes.
+
+```sh
+candb live --port /dev/ttyACM0                 # Linux; COM3 etc. on Windows
+candb live --port /dev/ttyACM0 --id 0x204,0x156
+candb live --port /dev/ttyACM0 --bus 1
+candb live --port /dev/ttyACM0 --format csv >> live_log.csv
+candb live --port /dev/ttyACM0 --unknown        # print each undocumented ID as it's seen (to stderr)
+```
+
+`Teensy/src/Logging.cpp` prints each CAN frame to Serial as `[CAN]
+timestampMs,bus,id,extended,rtr,dlc,data` -- the same row format as the SD
+CSV, just prefixed so it can be picked out of the rest of the Serial stream
+(`[INFO]`/`[Logging]`/`[CANManager]` diagnostic lines share that same
+stream). `candb live` reads every line: `[CAN] ...` lines get parsed and
+decoded, and everything else is passed through to stderr so device
+boot/status messages stay visible instead of being silently dropped.
+
+`--baud` defaults to `115200` (matching the Teensy's `Serial.begin()` call),
+though most USB-CDC serial ports (which is what the Teensy presents) ignore
+the configured baud rate entirely.
 
 Run `candb <command> --help` for a command's full flag list.
 

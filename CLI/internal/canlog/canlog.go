@@ -55,7 +55,7 @@ func Parse(r io.Reader) ([]Frame, []error) {
 			}
 		}
 
-		f, err := parseRecord(fields)
+		f, err := ParseRecord(fields)
 		if err != nil {
 			errs = append(errs, fmt.Errorf("line %d: %w", lineNum, err))
 			continue
@@ -69,7 +69,10 @@ func Parse(r io.Reader) ([]Frame, []error) {
 	return frames, errs
 }
 
-func parseRecord(fields []string) (Frame, error) {
+// ParseRecord parses one CSV row's already-split fields into a Frame.
+// Exported so "candb live" can reuse it per line read from a serial port,
+// rather than duplicating this parsing for that streaming case.
+func ParseRecord(fields []string) (Frame, error) {
 	if len(fields) < 7 {
 		return Frame{}, fmt.Errorf("expected 7 fields (timestampMs,bus,id,extended,rtr,dlc,data), got %d", len(fields))
 	}

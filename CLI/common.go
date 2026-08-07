@@ -31,3 +31,23 @@ func joinOrDash(items []string) string {
 	}
 	return strings.Join(items, ",")
 }
+
+// parseIDFilterFlag parses a comma-separated --id flag value (hex or
+// decimal entries) into a lookup set. An empty string means "no filter" and
+// returns a nil map, matching how both the parse and live commands treat
+// the flag's zero value. Shared so the two commands can't drift on how
+// --id is parsed.
+func parseIDFilterFlag(raw string) (map[uint32]bool, error) {
+	if raw == "" {
+		return nil, nil
+	}
+	wantIDs := make(map[uint32]bool)
+	for _, part := range strings.Split(raw, ",") {
+		id, err := db.ParseID(strings.TrimSpace(part))
+		if err != nil {
+			return nil, fmt.Errorf("invalid --id entry %q: %w", part, err)
+		}
+		wantIDs[id] = true
+	}
+	return wantIDs, nil
+}

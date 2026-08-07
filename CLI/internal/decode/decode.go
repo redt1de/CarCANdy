@@ -34,6 +34,15 @@ func Decode(sig db.Signal, data []byte) Result {
 	}
 	res.RawValue = raw
 
+	// lookupValue is what enum/bits below test against. It defaults to the
+	// raw byteIndex-concatenated value, but when a formula is present and
+	// this signal also has an enum/bitfield table, the formula is being
+	// used to isolate a sub-field (e.g. "b2&3" to pull a 2-bit mode out of
+	// a byte shared with other flags) -- so the formula's result is what
+	// should be matched against enum/bits, not the untransformed byte.
+	lookupValue := raw
+	hasLookupTable := len(sig.Enum) > 0 || len(sig.Bits) > 0
+
 	var parts []string
 
 	if sig.Formula != "" {
@@ -43,7 +52,9 @@ func Decode(sig db.Signal, data []byte) Result {
 		}
 		if v, err := evalFormula(sig.Formula, byteVals); err == nil {
 			res.Numeric = &v
-			if sig.Unit != "" {
+			if hasLookupTable {
+				lookupValue = uint64(int64(v))
+			} else if sig.Unit != "" {
 				parts = append(parts, fmt.Sprintf("%.4g %s", v, sig.Unit))
 			} else {
 				parts = append(parts, fmt.Sprintf("%.4g", v))
@@ -54,10 +65,10 @@ func Decode(sig db.Signal, data []byte) Result {
 	}
 
 	if len(sig.Enum) > 0 {
-		if desc, ok := sig.Enum[strconv.FormatUint(raw, 10)]; ok {
+		if desc, ok := sig.Enum[strconv.FormatUint(lookupValue, 10)]; ok {
 			parts = append(parts, desc)
 		} else {
-			parts = append(parts, fmt.Sprintf("unmapped enum value %d (0x%X)", raw, raw))
+			parts = append(parts, fmt.Sprintf("unmapped enum value %d (0x%X)", lookupValue, lookupValue))
 		}
 	}
 
@@ -71,7 +82,7 @@ func Decode(sig db.Signal, data []byte) Result {
 		sort.Ints(keys)
 		var flags []string
 		for _, bit := range keys {
-			if raw&(1<<uint(bit)) != 0 {
+			if lookupValue&(1<<uint(bit)) != 0 {
 				flags = append(flags, sig.Bits[strconv.Itoa(bit)])
 			}
 		}

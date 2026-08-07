@@ -6,11 +6,9 @@ import (
 	"os"
 	"sort"
 	"strconv"
-	"strings"
 	"text/tabwriter"
 
 	"candb/internal/canlog"
-	"candb/internal/db"
 	"candb/internal/decode"
 
 	"github.com/spf13/cobra"
@@ -35,16 +33,9 @@ var parseCmd = &cobra.Command{
 			return err
 		}
 
-		var wantIDs map[uint32]bool
-		if parseIDFilter != "" {
-			wantIDs = make(map[uint32]bool)
-			for _, part := range strings.Split(parseIDFilter, ",") {
-				id, err := db.ParseID(strings.TrimSpace(part))
-				if err != nil {
-					return fmt.Errorf("invalid --id entry %q: %w", part, err)
-				}
-				wantIDs[id] = true
-			}
+		wantIDs, err := parseIDFilterFlag(parseIDFilter)
+		if err != nil {
+			return err
 		}
 
 		f, err := os.Open(logPath)
