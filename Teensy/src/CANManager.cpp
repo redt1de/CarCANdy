@@ -1,5 +1,6 @@
 #include "CANManager.h"
 #include "FilterManager.h"
+#include "Logging.h"
 #include <string.h>
 
 namespace {
@@ -61,7 +62,7 @@ void CANManager::begin() {
   auto bus1 = config_.canBus(1);
   busEnabled_[1] = bus1.enabled;
   busTransmitAllowed_[1] = strcmp(bus1.mode, "transmit") == 0;
-  Serial.printf("[CANManager] bus1 enabled=%d baud=%lu mode=%s\n", bus1.enabled,
+  logging.printf("[CANManager] bus1 enabled=%d baud=%lu mode=%s\n", bus1.enabled,
                 bus1.baud, bus1.mode);
   if (bus1.enabled) {
     can1_.begin();
@@ -87,7 +88,7 @@ void CANManager::begin() {
   auto bus2 = config_.canBus(2);
   busEnabled_[2] = bus2.enabled;
   busTransmitAllowed_[2] = strcmp(bus2.mode, "transmit") == 0;
-  Serial.printf("[CANManager] bus2 enabled=%d baud=%lu mode=%s\n", bus2.enabled,
+  logging.printf("[CANManager] bus2 enabled=%d baud=%lu mode=%s\n", bus2.enabled,
                 bus2.baud, bus2.mode);
   if (bus2.enabled) {
     can2_.begin();
@@ -101,7 +102,7 @@ void CANManager::begin() {
   auto bus3 = config_.canBus(3);
   busEnabled_[3] = bus3.enabled;
   busTransmitAllowed_[3] = strcmp(bus3.mode, "transmit") == 0;
-  Serial.printf("[CANManager] bus3 enabled=%d baud=%lu mode=%s\n", bus3.enabled,
+  logging.printf("[CANManager] bus3 enabled=%d baud=%lu mode=%s\n", bus3.enabled,
                 bus3.baud, bus3.mode);
   if (bus3.enabled) {
     can3_.begin();
@@ -124,7 +125,7 @@ void CANManager::loop() {
     lastDiagMs = now;
     CAN_error_t err;
     can1_.error(err, false);
-    // Serial.printf("[CANManager] bus1 diag state=%s rx_err=%u tx_err=%u "
+    // logging.printf("[CANManager] bus1 diag state=%s rx_err=%u tx_err=%u "
     //               "rx_queue=%lu ACK=%d CRC=%d STF=%d FRM=%d BIT0=%d
     //               BIT1=%d\n", err.state, err.RX_ERR_COUNTER,
     //               err.TX_ERR_COUNTER, (unsigned long)can1_.getRXQueueCount(),

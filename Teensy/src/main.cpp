@@ -7,8 +7,9 @@
 #include "plugins/ShiftLightPlugin.h"
 #include <Arduino.h>
 
+#define RESET_PIN 33
+
 ConfigManager config;
-Logging logging;
 FilterManager filterManager(config);
 CANManager canManager(config, filterManager);
 CommManager commManager(config, canManager, filterManager);
@@ -19,13 +20,6 @@ void onCanFrame(const CarCANdy::CanFrame &frame) {
   logging.logCanFrame(frame);
   commManager.streamCanFrame(frame);
   pluginManager.dispatchCanFrame(frame);
-}
-
-#define RESET_PIN 33
-void reboot() {
-  SCB_AIRCR = 0x05FA0004; // Cortex-M7 System Reset
-  while (1) {
-  }
 }
 
 // // <<<<<<<<<<<<<< REMOVE ME -- bench test only, no CAN bus needed.
@@ -73,6 +67,19 @@ void testShiftLightSweep() {
   onCanFrame(frame);
 }
 
+// == REMMOVE ME ==
+// relays: 12,26,27
+// inputs: 2,3,4
+// adcs: A1,A0
+
+#define RELAY1 12
+#define RELAY2 26
+#define RELAY3 27
+#define IN1 2
+#define IN2 3
+#define IN3 4
+// == END REMMOVE ME ==
+
 void setup() {
   pinMode(RESET_PIN, INPUT_PULLUP);
   pinMode(LED_BUILTIN, OUTPUT);
@@ -81,7 +88,7 @@ void setup() {
   Serial.begin(115200);
 
   config.begin();
-  logging.begin(config.loggingPrefix());
+  logging.begin(config.loggingPrefix(), config.debugEnabled());
   filterManager.begin();
   canManager.setFrameCallback(onCanFrame);
   canManager.begin();
@@ -93,12 +100,20 @@ void setup() {
   logging.info("CarCANdy Teensy firmware started");
 }
 
+void handleReboot() {
+  if (digitalRead(RESET_PIN) == LOW) {
+    SCB_AIRCR = 0x05FA0004; // Cortex-M7 System Reset
+    while (1) {
+    }
+  }
+}
+
 void loop() {
-  if (digitalRead(RESET_PIN) == LOW)
-    reboot();
+  handleReboot();
+
   canManager.loop();
   commManager.poll();
   pluginManager.loop();
   logging.loop();
-  // testShiftLightSweep(); // <<<<<<<<<<<<<< REMOVE ME
+  // // testShiftLightSweep(); // <<<<<<<<<<<<<< REMOVE ME
 }

@@ -1,4 +1,5 @@
 #include "PluginManager.h"
+#include "Logging.h"
 #include <Arduino.h>
 
 PluginManager::PluginManager(ConfigManager& config, CANManager& canManager)
@@ -6,7 +7,7 @@ PluginManager::PluginManager(ConfigManager& config, CANManager& canManager)
 
 bool PluginManager::registerPlugin(PluginBase* plugin) {
     if (pluginCount_ >= kMaxPlugins) {
-        Serial.println("[PluginManager] plugin registry full");
+        logging.println("[PluginManager] plugin registry full");
         return false;
     }
     plugins_[pluginCount_++] = plugin;

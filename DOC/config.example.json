@@ -32,6 +32,7 @@
     "mode": "none",
     "file": "/filters.csv"
   },
+  "debug": false,
   "plugins": {
     "shiftLight": {
       "enabled": false,

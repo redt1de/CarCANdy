@@ -1,4 +1,5 @@
 #include "FilterManager.h"
+#include "Logging.h"
 #include <SD.h>
 #include <string.h>
 #include <stdlib.h>
@@ -8,7 +9,7 @@ FilterManager::FilterManager(ConfigManager& config) : config_(config) {}
 void FilterManager::begin() {
     Mode mode;
     if (!parseModeName(config_.filterMode(), mode)) {
-        Serial.printf("[FilterManager] unknown filter mode '%s', defaulting to none\n", config_.filterMode());
+        logging.printf("[FilterManager] unknown filter mode '%s', defaulting to none\n", config_.filterMode());
         mode = Mode::NONE;
     }
     configuredMode_ = mode;
@@ -19,15 +20,15 @@ void FilterManager::begin() {
     loadFromFile();
 
     if (configuredMode_ == Mode::ALLOW && entryCount_ == 0) {
-        Serial.println("[FilterManager] mode=allow but the filter list is empty -- ALL frames will be dropped until entries are added");
+        logging.println("[FilterManager] mode=allow but the filter list is empty -- ALL frames will be dropped until entries are added");
     }
-    Serial.printf("[FilterManager] mode=%s file=%s entries=%u\n", modeName(configuredMode_), filePath_,
+    logging.printf("[FilterManager] mode=%s file=%s entries=%u\n", modeName(configuredMode_), filePath_,
                   static_cast<unsigned>(entryCount_));
 }
 
 void FilterManager::reload() {
     loadFromFile();
-    Serial.printf("[FilterManager] reloaded %u entries from %s\n", static_cast<unsigned>(entryCount_), filePath_);
+    logging.printf("[FilterManager] reloaded %u entries from %s\n", static_cast<unsigned>(entryCount_), filePath_);
 }
 
 bool FilterManager::shouldPass(uint8_t bus, uint32_t id) const {
@@ -45,18 +46,18 @@ bool FilterManager::shouldPass(uint8_t bus, uint32_t id) const {
 void FilterManager::setOverride(Mode mode) {
     hasOverride_ = true;
     overrideMode_ = mode;
-    Serial.printf("[FilterManager] override set to %s\n", modeName(mode));
+    logging.printf("[FilterManager] override set to %s\n", modeName(mode));
 }
 
 void FilterManager::clearOverride() {
     hasOverride_ = false;
-    Serial.println("[FilterManager] override cleared, using configured mode");
+    logging.println("[FilterManager] override cleared, using configured mode");
 }
 
 bool FilterManager::addFilterFromString(const char* spec) {
     Entry entry;
     if (!parseEntrySpec(spec, entry)) {
-        Serial.printf("[FilterManager] could not parse filter spec '%s'\n", spec);
+        logging.printf("[FilterManager] could not parse filter spec '%s'\n", spec);
         return false;
     }
     return addFilter(entry.bus, entry.idStart, entry.idEnd);
@@ -65,7 +66,7 @@ bool FilterManager::addFilterFromString(const char* spec) {
 bool FilterManager::removeFilterFromString(const char* spec) {
     Entry entry;
     if (!parseEntrySpec(spec, entry)) {
-        Serial.printf("[FilterManager] could not parse filter spec '%s'\n", spec);
+        logging.printf("[FilterManager] could not parse filter spec '%s'\n", spec);
         return false;
     }
     return removeFilter(entry.bus, entry.idStart, entry.idEnd);
@@ -175,7 +176,7 @@ bool FilterManager::parseEntrySpec(const char* spec, Entry& out) const {
 
 bool FilterManager::addFilter(uint8_t bus, uint32_t idStart, uint32_t idEnd) {
     if (entryCount_ >= kMaxEntries) {
-        Serial.println("[FilterManager] cannot add filter -- table full");
+        logging.println("[FilterManager] cannot add filter -- table full");
         return false;
     }
     entries_[entryCount_++] = Entry{bus, idStart, idEnd};
@@ -204,12 +205,12 @@ bool FilterManager::removeFilter(uint8_t bus, uint32_t idStart, uint32_t idEnd) 
 bool FilterManager::loadFromFile() {
     entryCount_ = 0;
     if (!SD.begin(BUILTIN_SDCARD)) {
-        Serial.println("[FilterManager] SD card not available");
+        logging.println("[FilterManager] SD card not available");
         return false;
     }
     File f = SD.open(filePath_, FILE_READ);
     if (!f) {
-        Serial.printf("[FilterManager] %s not found -- filter list empty\n", filePath_);
+        logging.printf("[FilterManager] %s not found -- filter list empty\n", filePath_);
         return false;
     }
 
@@ -220,7 +221,7 @@ bool FilterManager::loadFromFile() {
             continue; // blank line, comment, or malformed -- skip
         }
         if (entryCount_ >= kMaxEntries) {
-            Serial.println("[FilterManager] filter file has more entries than kMaxEntries -- truncating");
+            logging.println("[FilterManager] filter file has more entries than kMaxEntries -- truncating");
             break;
         }
         entries_[entryCount_++] = entry;

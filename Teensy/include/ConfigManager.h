@@ -30,6 +30,11 @@ public:
     const char* filterMode() const; // "allow", "deny", or "none"
     const char* filterFile() const; // path to the BUS,ID filter CSV on SD
 
+    // Whether to also mirror all non-CAN-frame Serial output to a
+    // /debug_NN.log file on SD (see Logging). Off by default -- opt-in
+    // since it's extra SD wear/writes most users won't need.
+    bool debugEnabled() const;
+
     // Looks up a bus by its "id" field (1-3, matching the CAN controller --
     // see CANManager.h) rather than array position, so canBuses entries can
     // be in any order. Returns a disabled/read_only default if no entry

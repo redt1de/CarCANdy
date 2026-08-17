@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+source $(find ../ -type f -name script.env)
 
 STEPFILES=(
     "/home/redt1de/make/kicad-lib/Micro USB Plug.step"

@@ -104,6 +104,8 @@ void ConfigManager::loadDefaults() {
   filters["mode"] = "none";
   filters["file"] = "/filters.csv";
 
+  doc_["debug"] = false;
+
   // No plugin defaults here -- PluginManager::begin() seeds doc_["plugins"]
   // from each registered plugin's own setDefaultConfig() right after this
   // runs (or after a successful SD load), via pluginDefaultsTarget() below.
@@ -123,6 +125,10 @@ const char *ConfigManager::filterMode() const {
 
 const char *ConfigManager::filterFile() const {
   return doc_["filters"]["file"] | "/filters.csv";
+}
+
+bool ConfigManager::debugEnabled() const {
+  return doc_["debug"] | false;
 }
 
 ConfigManager::CanBusConfig ConfigManager::canBus(uint8_t busNumber) const {

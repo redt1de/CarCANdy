@@ -26,6 +26,10 @@ export interface CarCandyConfig {
     mode: 'allow' | 'deny' | 'none';
     file: string;
   };
+  // When true, the Teensy also mirrors all non-CAN-frame Serial output to
+  // /debug_NN.log on SD, using the same NN as that boot's CAN CSV log so
+  // the two can be compared directly. Off by default -- extra SD writes.
+  debug: boolean;
   plugins: Record<string, PluginConfig>;
 }
 

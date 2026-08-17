@@ -22,7 +22,23 @@
         25: RX,D25,A11
 
 
-# RJ45 Wiring (Gold pins facing you, clip on top)
+## OBD2 plug
+SIGNAL      |  PIN  | COLOR
+---------------------------------------
+HS_CAN1_H   | 6     | BLUE
+HS_CAN1_L   | 14    | WHITE/BLUE
+
+MS_CAN_H    | 3     | GREEN
+MS_CAN_L    | 11    | WHITE/GREEN
+
+HS_CAN2_H   | 12    | BROWN
+HS_CAN2_L   | 13    | WHITE/BROWN
+
+12v+        | 16    | ORANGE
+CHASSIS_GND | 4     | WHITE/ORANGE
+SIGNAL_GND  | 5     | WHITE/ORANGE
+
+# RJ45 Wiring (Gold pins facing away from you, clip on top)
         ___
 -------|   |-------
 |                 | 
@@ -30,15 +46,14 @@
 | | | | | | | | | |
 -------------------
 
-1: CAN3_L
-2: CAN3_H
-3: GND
-4: CAN2_L
+1: CAN3_L - white/brown
+2: CAN3_H - brown
+3: GND - white/orange
+4: CAN2_L - white/green
 5: NA
-6: CAN2_H
-7: CAN1_H
-8: CAN1_L
+6: CAN2_H - green
+7: CAN1_H - blue
+8: CAN1_L - white/blue
 
 
 
-make it hacken

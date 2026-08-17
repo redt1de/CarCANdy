@@ -157,6 +157,22 @@ export function ConfigPage() {
           />
         </label>
       </p>
+      <p>
+        <label>
+          <input
+            type="checkbox"
+            checked={draft.debug}
+            onChange={(e) => setDraft({ ...draft, debug: e.target.checked })}
+          />{' '}
+          Debug logging
+        </label>
+      </p>
+      <p className="hint">
+        When enabled, also writes every non-CAN-frame Serial message (e.g. <code>[CommManager]</code>,{' '}
+        <code>[FilterManager]</code> diagnostics) to <code>/debug_NN.log</code> on SD, sharing the same{' '}
+        <code>NN</code> index as that boot's CAN CSV log so the two can be compared directly. Same 10-file rotation
+        limit as the CAN logs. Takes effect on the next boot.
+      </p>
 
       <h3>Filters</h3>
       <p>

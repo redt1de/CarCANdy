@@ -1,6 +1,7 @@
 #include "CommManager.h"
 #include "CANManager.h"
 #include "FilterManager.h"
+#include "Logging.h"
 #include <Arduino.h>
 #include <string.h>
 
@@ -14,9 +15,9 @@ void CommManager::begin() {
     client_ = useSpi ? static_cast<CommClient*>(&spiClient_) : static_cast<CommClient*>(&uartClient_);
 
     if (!client_->begin()) {
-        Serial.println("[CommManager] selected client failed to begin()");
+        logging.println("[CommManager] selected client failed to begin()");
     } else {
-        Serial.printf("[CommManager] comm client started (mode=%s)\n", config_.commMode());
+        logging.printf("[CommManager] comm client started (mode=%s)\n", config_.commMode());
     }
 }
 
@@ -39,12 +40,12 @@ void CommManager::handlePacket(const Packet& pkt) {
         break;
 
     case MsgType::CONFIG_GET:
-        Serial.println("[CommManager] CONFIG_GET received");
+        logging.println("[CommManager] CONFIG_GET received");
         sendConfigData();
         break;
 
     case MsgType::CONFIG_SET:
-        Serial.println("[CommManager] CONFIG_SET received");
+        logging.println("[CommManager] CONFIG_SET received");
         if (config_.applyJson(pkt.payload, pkt.header.length)) {
             sendAck();
         } else {
@@ -81,7 +82,7 @@ void CommManager::handlePacket(const Packet& pkt) {
     }
 
     default:
-        Serial.printf("[CommManager] unhandled inbound MsgType 0x%02X\n", pkt.header.type);
+        logging.printf("[CommManager] unhandled inbound MsgType 0x%02X\n", pkt.header.type);
         sendNack();
         break;
     }
@@ -109,7 +110,7 @@ bool CommManager::handleCmd(const char* cmd) {
         }
         FilterManager::Mode mode;
         if (!FilterManager::parseModeName(value, mode)) {
-            Serial.printf("[CommManager] unknown filter override mode '%s'\n", value);
+            logging.printf("[CommManager] unknown filter override mode '%s'\n", value);
             return false;
         }
         filterManager_.setOverride(mode);
@@ -126,7 +127,7 @@ bool CommManager::handleCmd(const char* cmd) {
         return filterManager_.removeFilterFromString(cmd + sizeof(kRemovePrefix) - 1);
     }
 
-    Serial.printf("[CommManager] unknown CMD: %s\n", cmd);
+    logging.printf("[CommManager] unknown CMD: %s\n", cmd);
     return false;
 }
 
@@ -134,7 +135,7 @@ void CommManager::sendConfigData() {
     char buf[PACKET_MAX_PAYLOAD];
     const size_t n = config_.toJson(buf, sizeof(buf));
     if (n == 0) {
-        Serial.println("[CommManager] config JSON doesn't fit in one packet -- see DOC/open-risks.md #2");
+        logging.println("[CommManager] config JSON doesn't fit in one packet -- see DOC/open-risks.md #2");
         sendNack();
         return;
     }
@@ -144,7 +145,7 @@ void CommManager::sendConfigData() {
     pkt.header.length = static_cast<uint16_t>(n);
     memcpy(pkt.payload, buf, n);
     client_->sendPacket(pkt);
-    Serial.printf("[CommManager] sent CONFIG_DATA (%u bytes)\n", static_cast<unsigned>(n));
+    logging.printf("[CommManager] sent CONFIG_DATA (%u bytes)\n", static_cast<unsigned>(n));
 }
 
 void CommManager::sendAck() {

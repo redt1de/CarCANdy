@@ -1,7 +1,8 @@
 #include "SPIClient.h"
+#include "Logging.h"
 
 bool SPIClient::begin() {
-    Serial.println("[SPIClient] SPI slave mode not yet implemented -- see DOC/open-risks.md #1");
+    logging.println("[SPIClient] SPI slave mode not yet implemented -- see DOC/open-risks.md #1");
     return false;
 }
 
