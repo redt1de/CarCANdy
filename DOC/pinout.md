@@ -2,6 +2,7 @@
 
 
 
+
 ## OBD2 plug
 SIGNAL      |  PIN  | COLOR
 ---------------------------------------
@@ -17,6 +18,37 @@ HS_CAN2_L   | 13    | WHITE/BROWN
 12v+        | 16    | ORANGE
 CHASSIS_GND | 4     | WHITE/ORANGE
 SIGNAL_GND  | 5     | WHITE/ORANGE
+
+# RJ45 Wiring (Gold pins facing away from you, clip on top)
+        ___
+-------|   |-------
+|                 | 
+| 8 7 6 5 4 3 2 1 |
+| | | | | | | | | |
+-------------------
+
+
+# V1/prototype
+1: CAN3_L - white/brown
+2: CAN3_H - brown
+3: GND - white/orange
+4: CAN2_L - white/green
+5: NA
+6: CAN2_H - green
+7: CAN1_H - blue
+8: CAN1_L - white/blue
+
+
+# V2 final
+1: 12V/NA
+2: GND - white/orange
+3: CAN3_H - brown
+4: CAN3_L - white/brown
+5: CAN2_H - green
+6: CAN2_L - white/green
+7: CAN1_H - blue
+8: CAN1_L - white/blue
+--------------------------------
 
 
 ## Teensy CAN Connections
@@ -99,3 +131,4 @@ plugins should use instead of hardcoding these pin numbers.
 | AUX1 | 29         | digital, PWM, UART TX  | Serial7 TX                     |
 | AUX2 | 24         | digital, PWM, UART TX, analog (A10) | Serial6 TX; currently driving the shift light neopixel strip |
 | AUX2 | 25         | digital, PWM, UART RX, analog (A11) | Serial6 RX                     |
+
