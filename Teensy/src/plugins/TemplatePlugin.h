@@ -1,6 +1,7 @@
 #pragma once
 #include "CANManager.h"
 #include "ConfigManager.h"
+#include "Logging.h"
 #include "PluginBase.h"
 #include <ArduinoJson.h>
 
@@ -53,15 +54,17 @@ public:
   // `| fallback` is needed here (and shouldn't be: keep the actual default
   // *values* only in setDefaultConfig() above, or the two can drift).
   //
-  // canManager_ is stashed as a pointer (not a reference -- this plugin
-  // instance is default-constructed before init() runs, and references
-  // can't be assigned after construction) so loop()/onCanFrame() can call
-  // canManager_->sendFrame() later if this plugin needs to transmit.
-  void init(ConfigManager &config, CANManager &canManager) override {
+  // canManager_/logging_ are stashed as pointers (not references -- this
+  // plugin instance is default-constructed before init() runs, and
+  // references can't be assigned after construction) so loop()/onCanFrame()
+  // can use them later: canManager_->sendFrame() to transmit, or
+  // LoggingPause(*logging_) to safely touch the SD card yourself.
+  void init(ConfigManager &config, CANManager &canManager, Logging &logging) override {
     JsonObjectConst cfg = config.pluginConfig(getName());
     exampleThreshold_ = cfg["exampleThreshold"];
     exampleEnabled_ = cfg["exampleEnabled"];
     canManager_ = &canManager;
+    logging_ = &logging;
   }
 
   // Called every main loop iteration, but only while this plugin is
@@ -80,6 +83,20 @@ public:
     // frame.dlc = 8;
     // frame.data[0] = 0xAA;
     // canManager_->sendFrame(frame.bus, frame);
+
+    // Example: safely read/write your own file on the SD card. MUST wrap
+    // any SD.open() in a LoggingPause first -- CarCANdy's own CSV/debug
+    // logs are held open for the entire runtime, and Teensy's SD library
+    // has been observed to corrupt data across files if a second file is
+    // opened/written while those are open. See Logging.h for details.
+    // {
+    //   LoggingPause pause(*logging_);
+    //   File f = SD.open("/my_plugin.csv", FILE_WRITE);
+    //   if (f) {
+    //     f.println("hello from a plugin");
+    //     f.close();
+    //   }
+    // }
   }
 
   // Called for every CAN frame received on any enabled bus, but only
@@ -97,4 +114,5 @@ private:
   uint16_t exampleThreshold_ = 100;
   bool exampleEnabled_ = true;
   CANManager *canManager_ = nullptr;
+  Logging *logging_ = nullptr;
 };

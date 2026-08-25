@@ -2,8 +2,8 @@
 #include "Logging.h"
 #include <Arduino.h>
 
-PluginManager::PluginManager(ConfigManager& config, CANManager& canManager)
-    : config_(config), canManager_(canManager) {}
+PluginManager::PluginManager(ConfigManager& config, CANManager& canManager, Logging& logging)
+    : config_(config), canManager_(canManager), logging_(logging) {}
 
 bool PluginManager::registerPlugin(PluginBase* plugin) {
     if (pluginCount_ >= kMaxPlugins) {
@@ -27,7 +27,7 @@ void PluginManager::begin() {
     config_.save();
 
     for (uint8_t i = 0; i < pluginCount_; ++i) {
-        plugins_[i]->init(config_, canManager_);
+        plugins_[i]->init(config_, canManager_, logging_);
     }
 }
 

@@ -13,7 +13,7 @@ ConfigManager config;
 FilterManager filterManager(config);
 CANManager canManager(config, filterManager);
 CommManager commManager(config, canManager, filterManager);
-PluginManager pluginManager(config, canManager);
+PluginManager pluginManager(config, canManager, logging);
 ShiftLightPlugin shiftLightPlugin;
 
 void onCanFrame(const CarCANdy::CanFrame &frame) {

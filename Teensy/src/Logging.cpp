@@ -15,6 +15,7 @@ bool Logging::begin(const char *prefix, bool debugEnabled) {
 
   char path[64];
   snprintf(path, sizeof(path), "/%s_%02d.csv", prefix, index);
+  csvPath_ = path;
 
   logFile_ = SD.open(path, FILE_WRITE);
   if (!logFile_) {
@@ -32,6 +33,7 @@ bool Logging::begin(const char *prefix, bool debugEnabled) {
     pruneOldLogs("debug", ".log", index);
     char debugPath[32];
     snprintf(debugPath, sizeof(debugPath), "/debug_%02d.log", index);
+    debugPath_ = debugPath;
     debugFile_ = SD.open(debugPath, FILE_WRITE);
     if (debugFile_) {
       debugEnabled_ = true;
@@ -103,6 +105,28 @@ void Logging::pruneOldLogs(const String &prefix, const char *extension, int newI
     entry.close();
   }
   root.close();
+}
+
+void Logging::suspend() {
+  if (sdReady_ && logFile_) {
+    logFile_.flush();
+    logFile_.close();
+  }
+  if (debugEnabled_ && debugFile_) {
+    debugFile_.flush();
+    debugFile_.close();
+  }
+}
+
+void Logging::resume() {
+  // FILE_WRITE opens in append mode (seeks to end), not truncate -- these
+  // pick back up where suspend() left off rather than starting over.
+  if (sdReady_ && csvPath_.length() > 0) {
+    logFile_ = SD.open(csvPath_.c_str(), FILE_WRITE);
+  }
+  if (debugEnabled_ && debugPath_.length() > 0) {
+    debugFile_ = SD.open(debugPath_.c_str(), FILE_WRITE);
+  }
 }
 
 void Logging::loop() {

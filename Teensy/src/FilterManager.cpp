@@ -203,6 +203,10 @@ bool FilterManager::removeFilter(uint8_t bus, uint32_t idStart, uint32_t idEnd) 
 }
 
 bool FilterManager::loadFromFile() {
+    // See Logging.h -- logFile_/debugFile_ must be closed while we touch
+    // the filter file, or this has been observed to corrupt data.
+    LoggingPause pause(logging);
+
     entryCount_ = 0;
     if (!SD.begin(BUILTIN_SDCARD)) {
         logging.println("[FilterManager] SD card not available");
@@ -231,6 +235,10 @@ bool FilterManager::loadFromFile() {
 }
 
 bool FilterManager::writeToFile() const {
+    // See Logging.h -- logFile_/debugFile_ must be closed while we touch
+    // the filter file, or this has been observed to corrupt data.
+    LoggingPause pause(logging);
+
     if (!SD.begin(BUILTIN_SDCARD)) {
         return false;
     }

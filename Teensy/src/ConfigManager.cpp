@@ -1,4 +1,5 @@
 #include "ConfigManager.h"
+#include "Logging.h"
 #include <SD.h>
 
 namespace {
@@ -6,6 +7,11 @@ constexpr const char *kConfigPath = "/config.json";
 }
 
 bool ConfigManager::begin() {
+  // logFile_/debugFile_ aren't open yet this early in boot (logging.begin()
+  // hasn't run), so this is a no-op in practice -- kept for safety in case
+  // that ordering ever changes. See Logging.h for why this is required.
+  LoggingPause pause(logging);
+
   if (!SD.begin(BUILTIN_SDCARD)) {
     Serial.println("[Config] SD card not available, using defaults");
     loadDefaults();
@@ -32,6 +38,10 @@ bool ConfigManager::begin() {
 }
 
 bool ConfigManager::save() {
+  // See Logging.h -- logFile_/debugFile_ must be closed while we touch
+  // config.json, or writes here have been observed to corrupt either file.
+  LoggingPause pause(logging);
+
   if (!SD.begin(BUILTIN_SDCARD)) {
     Serial.println("[Config] save() failed: SD card not available");
     return false;

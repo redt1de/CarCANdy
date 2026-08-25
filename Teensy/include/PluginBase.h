@@ -4,6 +4,7 @@
 
 class ConfigManager;
 class CANManager;
+class Logging;
 
 // Base interface for all plugins (shift light, line lock, etc). Plugins are
 // always compiled in and registered unconditionally; enable/disable is a
@@ -19,7 +20,15 @@ public:
     // in response to config/CAN events. CANManager::sendFrame() itself
     // enforces each bus's configured "transmit" mode, so this doesn't hand a
     // plugin any more TX authority than the user's own bus config allows.
-    virtual void init(ConfigManager& config, CANManager& canManager) {}
+    //
+    // logging is provided so a plugin can safely use the SD card for its
+    // own files: wrap any SD.open() in a LoggingPause first, e.g.
+    //   { LoggingPause pause(logging); File f = SD.open("/my_plugin.csv", FILE_WRITE); ... }
+    // See Logging.h for why this is required -- CarCANdy's own CSV/debug
+    // logs are held open for the entire runtime, and Teensy's SD library
+    // has been observed to corrupt data across files if a second file is
+    // opened/written while those are open.
+    virtual void init(ConfigManager& config, CANManager& canManager, Logging& logging) {}
     virtual void loop() {}
     virtual void onCanFrame(const CarCANdy::CanFrame& frame) {}
 

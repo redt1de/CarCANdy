@@ -43,7 +43,7 @@ public:
     setDefault(cfg, "ledPin", kDefaultLedPin);
   }
 
-  void init(ConfigManager &config, CANManager &canManager) override {
+  void init(ConfigManager &config, CANManager &canManager, Logging &logging) override {
     // By the time init() runs, PluginManager::begin() has already merged
     // this plugin's defaults in via setDefaultConfig(), so no `| fallback`
     // is needed here -- these keys are guaranteed present.

@@ -19,7 +19,7 @@ cd $BASEDIR/Teensy/
 pio run || errfail "teensy firmware build failed"
 
 echo "[*] uploading to teensy..."
-pio run -t upload || exit 1
+pio run -t upload || errfail "upload to teensy failed"
 
 
 echo "[*] buiding ESP32 firmware..."
@@ -27,7 +27,7 @@ cd $BASEDIR/ESP32
 pio run || errfail "esp32 firmware build failed"
 
 echo "[*] uploading to ESP32..."
-pio run -t upload || exit 1
+pio run -t upload || errfail "upload to ESP32 failed"
 
 echo "[*] uploading WebUI to ESP32..."
 pio run -t uploadfs ||errfail "webui upload failed"
