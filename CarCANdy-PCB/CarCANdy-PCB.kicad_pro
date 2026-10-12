@@ -549,6 +549,7 @@
       "netlist": "",
       "plot": "FAB/",
       "specctra_dsn": "",
+      "step": "CarCANdy-PCB.step",
       "vrml": ""
     },
     "page_layout_descr_file": ""
