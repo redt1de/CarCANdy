@@ -28,6 +28,9 @@ public:
     void setLogLineCallback(LogLineCallback cb) { logLineCallback_ = cb; }
 
     bool isConfigReady() const { return configReady_; }
+    // Last value received via MsgType::STATUS (see Shared/CanTypes.h's
+    // StatusInfo). false until the first STATUS packet arrives.
+    bool isSdReady() const { return sdReady_; }
     // Null-terminated JSON text last received from the Teensy's
     // CONFIG_DATA reply. Only valid to read once isConfigReady() is true.
     const char* cachedConfigJson() const { return configJson_; }
@@ -68,4 +71,5 @@ private:
     unsigned long lastConfigRequestMs_ = 0;
     bool          configRefreshPending_ = false;
     unsigned long configRefreshAtMs_ = 0;
+    bool          sdReady_ = false;
 };

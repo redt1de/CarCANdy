@@ -67,6 +67,27 @@
   overflow-y: auto;
 }
 
+.log-view {
+  font-family: var(--mono);
+  font-size: 13px;
+  max-height: 60vh;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  background: var(--code-bg);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.log-view > div {
+  padding: 1px 0;
+}
+
+.log-view > div:not(:last-child) {
+  border-bottom: 1px solid var(--border);
+}
+
 .pill {
   display: inline-block;
   padding: 2px 10px;

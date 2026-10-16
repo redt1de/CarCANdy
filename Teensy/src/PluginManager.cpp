@@ -7,7 +7,7 @@ PluginManager::PluginManager(ConfigManager& config, CANManager& canManager, Logg
 
 bool PluginManager::registerPlugin(PluginBase* plugin) {
     if (pluginCount_ >= kMaxPlugins) {
-        logging.println("[PluginManager] plugin registry full");
+        logging.print("[PluginManager] plugin registry full\n");
         return false;
     }
     plugins_[pluginCount_++] = plugin;

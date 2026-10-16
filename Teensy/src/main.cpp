@@ -22,6 +22,14 @@ void onCanFrame(const CarCANdy::CanFrame &frame) {
   pluginManager.dispatchCanFrame(frame);
 }
 
+// Forwards every line Logging prints (minus CAN frames, which bypass this
+// by design) to the ESP32 as a LOG_LINE packet, for the WebUI's Logging
+// page. commManager.sendLogLine() is null-guarded, so this is safe to wire
+// up before commManager.begin() has run.
+void onLogLine(const char *line, size_t len) {
+  commManager.sendLogLine(line, len);
+}
+
 // // <<<<<<<<<<<<<< REMOVE ME -- bench test only, no CAN bus needed.
 // // Feeds a synthetic 0x204 RPM frame through the same onCanFrame() pipeline a
 // // real frame takes (logging, ESP32 stream, plugin dispatch), sweeping
@@ -89,6 +97,7 @@ void setup() {
 
   config.begin();
   logging.begin(config.loggingPrefix(), config.debugEnabled());
+  logging.setLineCallback(onLogLine);
   filterManager.begin();
   canManager.setFrameCallback(onCanFrame);
   canManager.begin();
@@ -108,6 +117,28 @@ void handleReboot() {
   }
 }
 
+// Fast blink = CSV logging isn't currently up (no SD card, SD.open()
+// failed, or it died and hasn't recovered yet -- see Logging::loop()'s
+// self-healing retry); solid on = fine. Checks logging.sdReady() live
+// every call rather than a one-time boot snapshot, so this reacts the
+// moment logging actually stops or recovers, not just at boot -- that
+// snapshot previously made this LED blind to logging dying mid-drive.
+void updateStatusLed() {
+  if (logging.sdReady()) {
+    digitalWrite(LED_BUILTIN, HIGH);
+    return;
+  }
+  constexpr unsigned long kBlinkIntervalMs = 200;
+  static unsigned long lastToggleMs = 0;
+  static bool ledOn = true;
+  const unsigned long now = millis();
+  if (now - lastToggleMs >= kBlinkIntervalMs) {
+    lastToggleMs = now;
+    ledOn = !ledOn;
+    digitalWrite(LED_BUILTIN, ledOn ? HIGH : LOW);
+  }
+}
+
 void loop() {
   handleReboot();
 
@@ -115,5 +146,6 @@ void loop() {
   commManager.poll();
   pluginManager.loop();
   logging.loop();
+  updateStatusLed();
   // // testShiftLightSweep(); // <<<<<<<<<<<<<< REMOVE ME
 }

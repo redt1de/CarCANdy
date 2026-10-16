@@ -23,6 +23,7 @@ bool Logging::begin(const char *prefix, bool debugEnabled) {
     sdReady_ = false;
     return false;
   }
+  csvEverOpened_ = true;
   logFile_.println("timestampMs,bus,id,extended,rtr,dlc,data");
   logFile_.flush();
   Serial.printf("[Logging] logging to %s\n", path);
@@ -37,6 +38,7 @@ bool Logging::begin(const char *prefix, bool debugEnabled) {
     debugFile_ = SD.open(debugPath, FILE_WRITE);
     if (debugFile_) {
       debugEnabled_ = true;
+      debugEverEnabled_ = true;
       printf("[Logging] debug logging to %s\n", debugPath);
     } else {
       Serial.printf("[Logging] failed to open %s, debug logging disabled\n", debugPath);
@@ -118,33 +120,90 @@ void Logging::suspend() {
   }
 }
 
+File Logging::reopenWithRetry(const String &path) const {
+  for (uint8_t attempt = 0; attempt < kReopenAttempts; ++attempt) {
+    File f = SD.open(path.c_str(), FILE_WRITE);
+    if (f) {
+      return f;
+    }
+    delay(kReopenRetryDelayMs);
+  }
+  return File(); // invalid -- caller checks truthiness
+}
+
 void Logging::resume() {
   // FILE_WRITE opens in append mode (seeks to end), not truncate -- these
   // pick back up where suspend() left off rather than starting over.
+  //
+  // This reopen has been observed to occasionally fail on real hardware
+  // (right after suspend()'s close()) even though the original open in
+  // begin() succeeded. Previously that left sdReady_/debugEnabled_
+  // reporting true forever while logFile_/debugFile_ were silently dead --
+  // CSV/debug logging would go quiet for the rest of the boot after the
+  // very first config save (PluginManager::begin() triggers one on every
+  // boot), with nothing -- not even the status LED -- able to tell,
+  // because it only checks a one-time snapshot from setup(). Now: retry a
+  // few times, and on persistent failure mark that subsystem down for
+  // real, so sdReady() goes false live and loop() below can try to
+  // recover later instead of staying stuck for the rest of the boot.
   if (sdReady_ && csvPath_.length() > 0) {
-    logFile_ = SD.open(csvPath_.c_str(), FILE_WRITE);
+    logFile_ = reopenWithRetry(csvPath_);
+    if (!logFile_) {
+      sdReady_ = false;
+      Serial.printf("[Logging] failed to reopen %s -- CSV logging stopped\n", csvPath_.c_str());
+    }
   }
   if (debugEnabled_ && debugPath_.length() > 0) {
-    debugFile_ = SD.open(debugPath_.c_str(), FILE_WRITE);
+    debugFile_ = reopenWithRetry(debugPath_);
+    if (!debugFile_) {
+      debugEnabled_ = false;
+      Serial.printf("[Logging] failed to reopen %s -- debug logging stopped\n", debugPath_.c_str());
+    }
   }
 }
 
 void Logging::loop() {
+  const unsigned long now = millis();
+
+  // Self-healing: if CSV or debug logging died (resume() above gave up,
+  // or some other transient fault), periodically retry rather than
+  // staying down for the rest of the boot -- the original SD fault may
+  // well have cleared by now.
+  if (!sdReady_ && csvEverOpened_ && now - lastRecoveryAttemptMs_ >= kRecoveryIntervalMs) {
+    lastRecoveryAttemptMs_ = now;
+    logFile_ = reopenWithRetry(csvPath_);
+    if (logFile_) {
+      sdReady_ = true;
+      printf("[Logging] recovered -- resumed CSV logging to %s\n", csvPath_.c_str());
+    }
+  }
+  if (!debugEnabled_ && debugEverEnabled_ && now - lastRecoveryAttemptMs_ >= kRecoveryIntervalMs) {
+    debugFile_ = reopenWithRetry(debugPath_);
+    if (debugFile_) {
+      debugEnabled_ = true;
+      printf("[Logging] recovered -- resumed debug logging to %s\n", debugPath_.c_str());
+    }
+  }
+
   if (!sdReady_) {
     return;
   }
-  if (millis() - lastFlushMs_ >= kFlushIntervalMs) {
+  if (now - lastFlushMs_ >= kFlushIntervalMs) {
     logFile_.flush();
     if (debugEnabled_ && debugFile_) {
       debugFile_.flush();
     }
-    lastFlushMs_ = millis();
+    lastFlushMs_ = now;
   }
 }
 
 void Logging::info(const char *msg) {
-  print("[INFO] ");
-  println(msg);
+  // One printf() call -- one write(buffer, size) call for the whole line,
+  // not fragmented across multiple write() calls (print()+println() would
+  // do 3 separate writes: "[INFO] ", msg, then the bare newline). That
+  // matters because write() below fires lineCallback_ once per call,
+  // expecting each call to already be one complete line.
+  printf("[INFO] %s\n", msg);
 }
 
 void Logging::logCanFrame(const CarCANdy::CanFrame &frame) {
@@ -188,6 +247,9 @@ size_t Logging::write(const uint8_t *buffer, size_t size) {
   Serial.write(buffer, size);
   if (debugEnabled_ && debugFile_) {
     debugFile_.write(buffer, size);
+  }
+  if (lineCallback_) {
+    lineCallback_(reinterpret_cast<const char *>(buffer), size);
   }
   return size;
 }

@@ -22,16 +22,26 @@ Defined in [`Shared/Packet.h`](../Shared/Packet.h) and
 | CONFIG_SET  | ESP32 -> Teensy  | apply new config (JSON bytes as payload)   |
 | CONFIG_DATA | Teensy -> ESP32  | config JSON bytes, reply to CONFIG_GET     |
 | CAN_FRAME   | either           | Teensy -> ESP32: a frame received off the bus. ESP32 -> Teensy: a frame to transmit, subject to `CANManager::sendFrame()`'s per-bus enabled/mode check (ACK/NACK reply) |
-| LOG_LINE    | Teensy -> ESP32  | text log line for the status page          |
-| STATUS      | Teensy -> ESP32  | periodic health/status blob                |
+| LOG_LINE    | Teensy -> ESP32  | one line of Logging's non-CAN-frame output, for the WebUI's Logging page |
+| STATUS      | Teensy -> ESP32  | periodic health/status blob (`CarCANdy::StatusInfo` in `Shared/CanTypes.h`), currently just `sdReady` |
 
 The Teensy-side dispatch lives in `Teensy/src/CommManager.cpp`. The ESP32
 side (`ESP32/src/CommManager.cpp`) sends `CONFIG_GET` on a retry loop until
 the Teensy answers (caching the JSON for `GET /api/config`), forwards
 `POST /api/config` as `CONFIG_SET` and `POST /api/can/send` as a `CAN_FRAME`
 transmit request (both fire-and-forget -- see below), and forwards inbound
-`CAN_FRAME`/`LOG_LINE` out to WebSocket clients via callbacks. `STATUS` isn't
-produced by the Teensy yet, so the ESP32 side just has a `TODO` stub for it.
+`CAN_FRAME`/`LOG_LINE` out to WebSocket clients via callbacks. `STATUS` is
+sent by `Teensy/src/CommManager.cpp::sendStatus()` every 2s once its
+`CommClient` is up; the ESP32 side just caches the latest value (no history)
+and serves it via `GET /api/status`.
+
+`LOG_LINE` is produced by `Logging::write()` (Teensy) calling a line
+callback wired up in `Teensy/src/main.cpp` -- every complete
+print()/println()/printf() call Logging makes gets forwarded this way
+(mirroring whatever would also go to `/debug_NN.log` if debug logging is
+enabled on SD, but independent of that setting -- this stream works even
+with SD debug logging off). `logCanFrame()` deliberately bypasses `write()`
+so CAN frames are never sent as LOG_LINE packets.
 
 ### CMD grammar
 

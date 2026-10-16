@@ -20,7 +20,7 @@ void FilterManager::begin() {
     loadFromFile();
 
     if (configuredMode_ == Mode::ALLOW && entryCount_ == 0) {
-        logging.println("[FilterManager] mode=allow but the filter list is empty -- ALL frames will be dropped until entries are added");
+        logging.print("[FilterManager] mode=allow but the filter list is empty -- ALL frames will be dropped until entries are added\n");
     }
     logging.printf("[FilterManager] mode=%s file=%s entries=%u\n", modeName(configuredMode_), filePath_,
                   static_cast<unsigned>(entryCount_));
@@ -51,7 +51,7 @@ void FilterManager::setOverride(Mode mode) {
 
 void FilterManager::clearOverride() {
     hasOverride_ = false;
-    logging.println("[FilterManager] override cleared, using configured mode");
+    logging.print("[FilterManager] override cleared, using configured mode\n");
 }
 
 bool FilterManager::addFilterFromString(const char* spec) {
@@ -176,7 +176,7 @@ bool FilterManager::parseEntrySpec(const char* spec, Entry& out) const {
 
 bool FilterManager::addFilter(uint8_t bus, uint32_t idStart, uint32_t idEnd) {
     if (entryCount_ >= kMaxEntries) {
-        logging.println("[FilterManager] cannot add filter -- table full");
+        logging.print("[FilterManager] cannot add filter -- table full\n");
         return false;
     }
     entries_[entryCount_++] = Entry{bus, idStart, idEnd};
@@ -209,7 +209,7 @@ bool FilterManager::loadFromFile() {
 
     entryCount_ = 0;
     if (!SD.begin(BUILTIN_SDCARD)) {
-        logging.println("[FilterManager] SD card not available");
+        logging.print("[FilterManager] SD card not available\n");
         return false;
     }
     File f = SD.open(filePath_, FILE_READ);
@@ -225,7 +225,7 @@ bool FilterManager::loadFromFile() {
             continue; // blank line, comment, or malformed -- skip
         }
         if (entryCount_ >= kMaxEntries) {
-            logging.println("[FilterManager] filter file has more entries than kMaxEntries -- truncating");
+            logging.print("[FilterManager] filter file has more entries than kMaxEntries -- truncating\n");
             break;
         }
         entries_[entryCount_++] = entry;

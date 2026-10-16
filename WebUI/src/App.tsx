@@ -5,6 +5,7 @@ import { ConfigPage } from './pages/ConfigPage';
 import { GaugesPage } from './pages/GaugesPage';
 import { SnifferPage } from './pages/SnifferPage';
 import { PluginsPage } from './pages/PluginsPage';
+import { LoggingPage } from './pages/LoggingPage';
 
 // No client-side router: ESPAsyncWebServer serving static LittleFS files
 // has no SPA-fallback for deep links, so a hard refresh on e.g. /gauges
@@ -15,6 +16,7 @@ const TABS = [
   { key: 'gauges', label: 'Gauges', component: GaugesPage },
   { key: 'sniffer', label: 'Sniffer', component: SnifferPage },
   { key: 'plugins', label: 'Plugins', component: PluginsPage },
+  { key: 'logging', label: 'Logging', component: LoggingPage },
 ] as const;
 
 type TabKey = (typeof TABS)[number]['key'];

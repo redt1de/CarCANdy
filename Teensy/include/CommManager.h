@@ -22,12 +22,22 @@ public:
     void poll();
     void streamCanFrame(const CarCANdy::CanFrame& frame);
 
+    // Forwards one already-formatted line (as produced by Logging's
+    // print()/println()/printf(), via its line callback -- see main.cpp)
+    // to the ESP32 as a LOG_LINE packet, for the WebUI's Logging page.
+    // Null-guarded like streamCanFrame(), so it's safe to wire up before
+    // begin() has run (Logging emits lines from very early in boot).
+    void sendLogLine(const char* line, size_t len);
+
 private:
     void handlePacket(const CarCANdy::Packet& pkt);
     bool handleCmd(const char* cmd);
     void sendConfigData();
     void sendAck();
     void sendNack();
+    void sendStatus();
+
+    static constexpr unsigned long kStatusIntervalMs = 2000;
 
     ConfigManager&        config_;
     CANManager&           canManager_;
@@ -35,4 +45,5 @@ private:
     CarCANdy::CommClient* client_ = nullptr;
     UARTClient             uartClient_;
     SPIClient              spiClient_;
+    unsigned long          lastStatusMs_ = 0;
 };

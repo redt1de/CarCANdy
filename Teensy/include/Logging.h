@@ -32,10 +32,23 @@
 // are closed for the duration.
 class Logging : public Print {
 public:
+    using LineCallback = void (*)(const char* line, size_t len);
+
     bool begin(const char* prefix, bool debugEnabled);
     void loop();
     void info(const char* msg);
     void logCanFrame(const CarCANdy::CanFrame& frame);
+
+    // True once begin() has successfully created this boot's CSV log file
+    // (i.e. SD card present and writable). Surfaced on the WebUI's Status
+    // page via MsgType::STATUS -- see CommManager.
+    bool sdReady() const { return sdReady_; }
+
+    // Called once per complete line written via print()/println()/printf()
+    // (not logCanFrame(), which bypasses this by design -- see class
+    // comment). main.cpp wires this to CommManager::sendLogLine() so the
+    // WebUI's Logging page can mirror this output live over WiFi.
+    void setLineCallback(LineCallback cb) { lineCallback_ = cb; }
 
     // Closes logFile_/debugFile_ (flushing first) so another module can
     // safely open/write/close its own file on the SD card without a second
@@ -45,8 +58,15 @@ public:
     // forgotten.
     void suspend();
 
-    // Reopens (in append mode) whatever suspend() closed. Safe to call
-    // even if suspend() had nothing to do.
+    // Reopens (in append mode) whatever suspend() closed, retrying a few
+    // times -- this has been observed on real hardware to occasionally
+    // fail right after a close(). On persistent failure, cleanly marks
+    // that subsystem down (sdReady()/debug) rather than leaving sdReady()
+    // reporting true while logFile_ is silently a dead handle -- which
+    // previously caused logging to go permanently (and silently) quiet for
+    // the rest of the boot after the very first config save, since
+    // PluginManager::begin() triggers one on every single boot. loop()
+    // periodically retries recovering from that state -- see below.
     void resume();
 
     // Print interface -- powers print()/println()/printf() above.
@@ -55,20 +75,30 @@ public:
 
 private:
     static constexpr unsigned long kFlushIntervalMs = 1000;
+    static constexpr unsigned long kRecoveryIntervalMs = 5000;
     static constexpr int kMaxLogFiles = 10;
+    static constexpr uint8_t kReopenAttempts = 3;
+    static constexpr unsigned long kReopenRetryDelayMs = 10;
 
     int findNextIndex(const String& prefix, const char* extension) const;
     void pruneOldLogs(const String& prefix, const char* extension, int newIndex) const;
+    // Retries SD.open(path, FILE_WRITE) a few times before giving up --
+    // returns an invalid File if every attempt failed.
+    File reopenWithRetry(const String& path) const;
 
     bool sdReady_ = false;
+    bool csvEverOpened_ = false; // true once begin() opens logFile_ successfully; gates loop()'s recovery retries
     File logFile_;
     String csvPath_;
 
     bool debugEnabled_ = false;
+    bool debugEverEnabled_ = false; // same idea as csvEverOpened_, for debugFile_
     File debugFile_;
     String debugPath_;
 
     unsigned long lastFlushMs_ = 0;
+    unsigned long lastRecoveryAttemptMs_ = 0;
+    LineCallback lineCallback_ = nullptr;
 };
 
 // RAII helper -- pauses Logging's own open SD files for the scope's

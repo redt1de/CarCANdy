@@ -1,8 +1,47 @@
 #include "WebServerManager.h"
 #include <LittleFS.h>
 #include <WiFi.h>
+#include <string.h>
 
 using namespace CarCANdy;
+
+namespace {
+// Minimal JSON string escaping for broadcastLogLine() below -- a log line
+// could contain a quote (e.g. a filter spec) or a stray control byte, and
+// without this an unescaped one breaks the JSON for every WS client, not
+// just corrupts that one line. Unescapable control bytes are dropped
+// rather than emitted raw. Always null-terminates; truncates rather than
+// overflowing if the escaped form doesn't fit outLen.
+void escapeJsonInto(char* out, size_t outLen, const char* in) {
+    size_t w = 0;
+    for (; *in != '\0' && w + 1 < outLen; ++in) {
+        const unsigned char c = static_cast<unsigned char>(*in);
+        const char* esc = nullptr;
+        switch (c) {
+        case '"':  esc = "\\\""; break;
+        case '\\': esc = "\\\\"; break;
+        case '\n': esc = "\\n"; break;
+        case '\r': esc = "\\r"; break;
+        case '\t': esc = "\\t"; break;
+        default:
+            if (c < 0x20) {
+                continue; // drop other control bytes -- not valid raw in JSON
+            }
+        }
+        if (esc) {
+            const size_t escLen = strlen(esc);
+            if (w + escLen >= outLen) {
+                break;
+            }
+            memcpy(out + w, esc, escLen);
+            w += escLen;
+        } else {
+            out[w++] = static_cast<char>(c);
+        }
+    }
+    out[w] = '\0';
+}
+} // namespace
 
 WebServerManager::WebServerManager(CommManager& commManager) : commManager_(commManager) {}
 
@@ -22,10 +61,10 @@ bool WebServerManager::begin() {
     server_.addHandler(&ws_);
 
     server_.on("/api/status", HTTP_GET, [this](AsyncWebServerRequest* request) {
-        char buf[160];
-        snprintf(buf, sizeof(buf), "{\"apClients\":%u,\"configReady\":%s,\"uptimeMs\":%lu}",
+        char buf[192];
+        snprintf(buf, sizeof(buf), "{\"apClients\":%u,\"configReady\":%s,\"sdReady\":%s,\"uptimeMs\":%lu}",
                  WiFi.softAPgetStationNum(), commManager_.isConfigReady() ? "true" : "false",
-                 static_cast<unsigned long>(millis()));
+                 commManager_.isSdReady() ? "true" : "false", static_cast<unsigned long>(millis()));
         request->send(200, "application/json", buf);
     });
 
@@ -162,9 +201,9 @@ void WebServerManager::broadcastLogLine(const char* line) {
     if (ws_.count() == 0) {
         return;
     }
-    // Naive -- doesn't escape quotes/control chars if a log line ever
-    // contains them. TODO(Stage 3) if that turns out to matter.
-    char buf[192];
-    snprintf(buf, sizeof(buf), "{\"type\":\"log\",\"msg\":\"%s\"}", line);
+    char escaped[192];
+    escapeJsonInto(escaped, sizeof(escaped), line);
+    char buf[224];
+    snprintf(buf, sizeof(buf), "{\"type\":\"log\",\"msg\":\"%s\"}", escaped);
     ws_.textAll(buf);
 }

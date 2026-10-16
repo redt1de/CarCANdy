@@ -134,3 +134,51 @@ If bus load or plugin/consumer count ever grows enough that 64 frames over
 50ms isn't enough headroom, raise `kMaxBatch`/shorten `kFlushIntervalMs`
 first before reaching for anything more complex -- there's no evidence a
 fancier scheme is needed yet.
+
+## 9. (Partially resolved) Teensy SD (SdFat) multi-file-open corruption/reliability issues
+
+Two related findings from real-vehicle testing of debug logging (`Logging`
+holding `logFile_`/`debugFile_` open for the entire runtime):
+
+**a) Cross-file corruption (fixed).** `config.json` was found on the SD card
+with literal debug-log text (`"[INFO] CarCANdy Teensy firmware
+started[CommManager] CONFIG_GET received..."`) overwriting part of its JSON.
+Teensy's SD (SdFat) library appears to share a single sector cache across
+all open files -- `ConfigManager::save()`/`begin()` and
+`FilterManager::loadFromFile()`/`writeToFile()` were each opening
+`config.json`/`filters.csv` transiently while `logFile_`/`debugFile_` were
+also open, and writes to one file apparently landed on the other's disk
+sectors. Fixed with `Logging::suspend()`/`resume()` (close both files with a
+flush, do the other work, reopen) and a `LoggingPause` RAII wrapper used at
+all four of those call sites, plus exposed to plugins via `PluginBase::init()`'s
+`Logging&` parameter for their own SD access. Not independently verified on
+hardware that this specific fix holds under all conditions -- see (b).
+
+**b) Reopen-after-close can itself fail, and failed completely silently
+(fixed).** On the very next real-vehicle test, `resume()`'s `SD.open()` calls
+(reopening `logFile_`/`debugFile_` after (a)'s `suspend()`) were observed to
+fail -- both the CSV and debug log contained *only* their first line (the
+header / the "debug logging to..." message printed inside `begin()`),
+meaning logging died within the first second or two of boot, during
+`PluginManager::begin()`'s unconditional `config_.save()` call -- which
+happens on literally every boot. `resume()` didn't check whether its reopen
+succeeded, so `sdReady()`/the debug equivalent kept reporting healthy while
+the underlying `File` handles were silently dead for the rest of that boot;
+the status LED (see `main.cpp`) couldn't catch this either, since it only
+read a one-time snapshot from `setup()`, not live state.
+
+Fixed three ways: `resume()` now retries the reopen a few times and, on
+persistent failure, explicitly marks that subsystem down (`sdReady_`/
+`debugEnabled_ = false`) rather than lying about it; `Logging::loop()`
+periodically (`kRecoveryIntervalMs`) retries recovering from that state
+instead of staying down for the rest of the boot; and the status LED now
+polls `logging.sdReady()` live every `loop()` iteration. Still unknown:
+*why* the reopen fails right after a clean close() on this hardware/library
+-- the fix makes failure recoverable and visible rather than addressing a
+root cause we don't have direct evidence for yet. If this keeps recurring
+often in the field, worth investigating whether avoiding the close()
+entirely (e.g. `flush()`-only during the paused window, if that turns out
+to be sufficient to avoid (a)'s corruption) is viable, and/or whether
+`PluginManager::begin()`'s unconditional every-boot `config_.save()` can be
+skipped when nothing actually changed, to reduce how often the risky
+suspend/resume window happens at all.

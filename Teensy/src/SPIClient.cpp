@@ -2,7 +2,7 @@
 #include "Logging.h"
 
 bool SPIClient::begin() {
-    logging.println("[SPIClient] SPI slave mode not yet implemented -- see DOC/open-risks.md #1");
+    logging.print("[SPIClient] SPI slave mode not yet implemented -- see DOC/open-risks.md #1\n");
     return false;
 }
 

@@ -100,9 +100,15 @@ void CommManager::handlePacket(const Packet& pkt) {
         break;
     }
 
-    case MsgType::STATUS:
-        // TODO(Stage 3): surface Teensy health/status on the Status page.
+    case MsgType::STATUS: {
+        if (pkt.header.length != sizeof(StatusInfo)) {
+            break;
+        }
+        StatusInfo status;
+        memcpy(&status, pkt.payload, sizeof(StatusInfo));
+        sdReady_ = status.sdReady != 0;
         break;
+    }
 
     default:
         Serial.printf("[CommManager] unexpected inbound MsgType 0x%02X\n", pkt.header.type);

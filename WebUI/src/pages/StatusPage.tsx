@@ -60,6 +60,18 @@ export function StatusPage() {
             </td>
           </tr>
           <tr>
+            <th>SD card</th>
+            <td>
+              {status ? (
+                <span className={status.sdReady ? 'pill pill-ok' : 'pill pill-bad'}>
+                  {status.sdReady ? 'mounted' : 'not mounted / logging failed'}
+                </span>
+              ) : (
+                '...'
+              )}
+            </td>
+          </tr>
+          <tr>
             <th>WiFi AP clients</th>
             <td>{status?.apClients ?? '...'}</td>
           </tr>
@@ -71,6 +83,12 @@ export function StatusPage() {
       </table>
 
       {error && <p className="error">/api/status error: {error}</p>}
+
+      <p className="hint">
+        "SD card" reflects whether the Teensy successfully created this boot's CAN CSV log file -- not just whether a
+        card is physically present. It updates from a status packet the Teensy sends every ~2s, so it can take a
+        moment to flip after a reboot.
+      </p>
 
       <button onClick={refresh}>Refresh</button>
     </section>

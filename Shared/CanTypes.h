@@ -13,6 +13,13 @@ struct CanFrame {
     uint8_t  rtr;          // 0/1
     uint32_t timestampMs;
 };
+
+// Payload for MsgType::STATUS -- Teensy -> ESP32 periodic health blob (see
+// DOC/protocol.md). Deliberately small and easy to extend with more fields
+// later; sdReady is the first one, surfaced on the WebUI's Status page.
+struct StatusInfo {
+    uint8_t sdReady; // 0/1 -- Logging's SD card + CSV file state this boot
+};
 #pragma pack(pop)
 
 } // namespace CarCANdy

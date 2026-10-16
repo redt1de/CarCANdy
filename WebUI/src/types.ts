@@ -36,6 +36,10 @@ export interface CarCandyConfig {
 export interface StatusResponse {
   apClients: number;
   configReady: boolean;
+  // From the Teensy's periodic STATUS packet (see DOC/protocol.md) --
+  // false until the first one arrives, same as configReady before its
+  // first CONFIG_DATA.
+  sdReady: boolean;
   uptimeMs: number;
 }
 

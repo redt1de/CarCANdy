@@ -21,6 +21,9 @@
 		},
 		{
 			"path": "CLI"
+		},
+		{
+			"path": "AddOns/CarCANdy-Gauges"
 		}
 	],
 	"settings": {},

@@ -15,7 +15,7 @@ void CommManager::begin() {
     client_ = useSpi ? static_cast<CommClient*>(&spiClient_) : static_cast<CommClient*>(&uartClient_);
 
     if (!client_->begin()) {
-        logging.println("[CommManager] selected client failed to begin()");
+        logging.print("[CommManager] selected client failed to begin()\n");
     } else {
         logging.printf("[CommManager] comm client started (mode=%s)\n", config_.commMode());
     }
@@ -31,6 +31,11 @@ void CommManager::poll() {
     while (client_->readPacket(incoming)) {
         handlePacket(incoming);
     }
+
+    if (millis() - lastStatusMs_ >= kStatusIntervalMs) {
+        lastStatusMs_ = millis();
+        sendStatus();
+    }
 }
 
 void CommManager::handlePacket(const Packet& pkt) {
@@ -40,12 +45,12 @@ void CommManager::handlePacket(const Packet& pkt) {
         break;
 
     case MsgType::CONFIG_GET:
-        logging.println("[CommManager] CONFIG_GET received");
+        logging.print("[CommManager] CONFIG_GET received\n");
         sendConfigData();
         break;
 
     case MsgType::CONFIG_SET:
-        logging.println("[CommManager] CONFIG_SET received");
+        logging.print("[CommManager] CONFIG_SET received\n");
         if (config_.applyJson(pkt.payload, pkt.header.length)) {
             sendAck();
         } else {
@@ -135,7 +140,7 @@ void CommManager::sendConfigData() {
     char buf[PACKET_MAX_PAYLOAD];
     const size_t n = config_.toJson(buf, sizeof(buf));
     if (n == 0) {
-        logging.println("[CommManager] config JSON doesn't fit in one packet -- see DOC/open-risks.md #2");
+        logging.print("[CommManager] config JSON doesn't fit in one packet -- see DOC/open-risks.md #2\n");
         sendNack();
         return;
     }
@@ -171,5 +176,43 @@ void CommManager::streamCanFrame(const CanFrame& frame) {
     pkt.header.type = static_cast<uint8_t>(MsgType::CAN_FRAME);
     pkt.header.length = sizeof(CanFrame);
     memcpy(pkt.payload, &frame, sizeof(CanFrame));
+    client_->sendPacket(pkt);
+}
+
+void CommManager::sendLogLine(const char* line, size_t len) {
+    if (!client_) {
+        return;
+    }
+    // Every line from Logging ends with a newline (each print()/printf()
+    // call embeds one), but that's redundant once the ESP32 broadcasts it
+    // as a single JSON string value and the WebUI renders one entry per
+    // message -- strip a trailing \r/\n before sending.
+    while (len > 0 && (line[len - 1] == '\n' || line[len - 1] == '\r')) {
+        --len;
+    }
+    if (len == 0) {
+        return;
+    }
+    if (len > PACKET_MAX_PAYLOAD) {
+        len = PACKET_MAX_PAYLOAD;
+    }
+    Packet pkt{};
+    pkt.header.type = static_cast<uint8_t>(MsgType::LOG_LINE);
+    pkt.header.length = static_cast<uint16_t>(len);
+    memcpy(pkt.payload, line, len);
+    client_->sendPacket(pkt);
+}
+
+void CommManager::sendStatus() {
+    if (!client_) {
+        return;
+    }
+    StatusInfo status{};
+    status.sdReady = logging.sdReady() ? 1 : 0;
+
+    Packet pkt{};
+    pkt.header.type = static_cast<uint8_t>(MsgType::STATUS);
+    pkt.header.length = sizeof(StatusInfo);
+    memcpy(pkt.payload, &status, sizeof(StatusInfo));
     client_->sendPacket(pkt);
 }
