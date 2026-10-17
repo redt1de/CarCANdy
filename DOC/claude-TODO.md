@@ -6,9 +6,10 @@ Hardware:
 - teensy pinout
 - RJ45 pinout
 - aux port pinouts
-- input usage
+- input usage (jumpers and switches)
 - output usage
 - ADC usage
+- CAN bus jumpers
 
 Config/Software:
 - config.json

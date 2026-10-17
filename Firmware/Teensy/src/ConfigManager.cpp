@@ -115,6 +115,7 @@ void ConfigManager::loadDefaults() {
   filters["file"] = "/filters.csv";
 
   doc_["debug"] = false;
+  doc_["simulate"] = false;
 
   // No plugin defaults here -- PluginManager::begin() seeds doc_["plugins"]
   // from each registered plugin's own setDefaultConfig() right after this
@@ -139,6 +140,10 @@ const char *ConfigManager::filterFile() const {
 
 bool ConfigManager::debugEnabled() const {
   return doc_["debug"] | false;
+}
+
+bool ConfigManager::simulateEnabled() const {
+  return doc_["simulate"] | false;
 }
 
 ConfigManager::CanBusConfig ConfigManager::canBus(uint8_t busNumber) const {

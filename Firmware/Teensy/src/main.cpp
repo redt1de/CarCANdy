@@ -4,6 +4,7 @@
 #include "FilterManager.h"
 #include "Logging.h"
 #include "PluginManager.h"
+#include "Simulator.h"
 #include "plugins/GaugesPlugin.h"
 #include "plugins/ShiftLightPlugin.h"
 #include <Arduino.h>
@@ -15,6 +16,7 @@ FilterManager filterManager(config);
 CANManager canManager(config, filterManager);
 CommManager commManager(config, canManager, filterManager);
 PluginManager pluginManager(config, canManager, logging);
+Simulator simulator;
 ShiftLightPlugin shiftLightPlugin;
 GaugesPlugin gaugesPlugin;
 
@@ -104,6 +106,7 @@ void setup() {
   canManager.setFrameCallback(onCanFrame);
   canManager.begin();
   commManager.begin();
+  simulator.begin(config, filterManager, onCanFrame);
 
   pluginManager.registerPlugin(&shiftLightPlugin);
   pluginManager.registerPlugin(&gaugesPlugin);
@@ -146,6 +149,7 @@ void loop() {
   handleReboot();
 
   canManager.loop();
+  simulator.loop();
   commManager.poll();
   pluginManager.loop();
   logging.loop();

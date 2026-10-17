@@ -30,6 +30,11 @@ export interface CarCandyConfig {
   // /log/debug_NN.log on SD, using the same NN as that boot's CAN CSV log
   // so the two can be compared directly. Off by default -- extra SD writes.
   debug: boolean;
+  // When true, the Teensy listens on its USB Serial for fabricated CAN
+  // frames (see Firmware/Teensy/include/Simulator.h) so the full pipeline
+  // can be exercised without a car connected, e.g. via the "candb
+  // simulate" CLI subcommand. Off by default.
+  simulate: boolean;
   plugins: Record<string, PluginConfig>;
 }
 

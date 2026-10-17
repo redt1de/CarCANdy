@@ -35,6 +35,12 @@ public:
     // since it's extra SD wear/writes most users won't need.
     bool debugEnabled() const;
 
+    // Whether the Teensy should listen on Serial for fabricated CAN frames
+    // (see Simulator.h) for dev/bench testing without a car connected. Off
+    // by default. Unlike debugEnabled(), Simulator polls this live every
+    // loop(), so toggling it from the WebUI takes effect immediately.
+    bool simulateEnabled() const;
+
     // Looks up a bus by its "id" field (1-3, matching the CAN controller --
     // see CANManager.h) rather than array position, so canBuses entries can
     // be in any order. Returns a disabled/read_only default if no entry

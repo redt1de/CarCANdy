@@ -33,6 +33,7 @@
     "file": "/filters.csv"
   },
   "debug": false,
+  "simulate": false,
   "plugins": {
     "shiftLight": {
       "enabled": false,

@@ -173,6 +173,22 @@ export function ConfigPage() {
         <code>NN</code> index as that boot's CAN CSV log so the two can be compared directly. Same 10-file rotation
         limit as the CAN logs. Takes effect on the next boot.
       </p>
+      <p>
+        <label>
+          <input
+            type="checkbox"
+            checked={draft.simulate}
+            onChange={(e) => setDraft({ ...draft, simulate: e.target.checked })}
+          />{' '}
+          Simulated CAN frames
+        </label>
+      </p>
+      <p className="hint">
+        When enabled, the Teensy listens on its USB Serial port for fabricated CAN frames (e.g. from the{' '}
+        <code>candb simulate</code> CLI tool replaying a recorded CSV log) and runs them through the same
+        logging/filtering/plugin pipeline real bus traffic uses -- for bench testing without a car connected. Leave
+        this off during normal driving. Takes effect immediately, no reboot needed.
+      </p>
 
       <h3>Filters</h3>
       <p>

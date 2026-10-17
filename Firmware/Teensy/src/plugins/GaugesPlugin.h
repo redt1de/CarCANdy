@@ -73,6 +73,7 @@ public:
     // holds at its last-known value -- see live_data.cpp.
   }
 
+  
 private:
   // Mirrors AddOns/Gauges/src/gauge.h's GaugeType enum order and
   // AddOns/Gauges/src/gauge_specs.cpp's GaugeSpec.name strings exactly --
