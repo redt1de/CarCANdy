@@ -27,3 +27,19 @@
 #ifndef GAUGE_COLOR_CUSTOM_RGB
 #define GAUGE_COLOR_CUSTOM_RGB 0xffb000
 #endif
+
+// Where gauge readings come from. One of:
+//   GAUGES_DATA_SOURCE_SIM   vehicle_sim.cpp's fake drive cycle (default --
+//                            lets the visual style be tuned with no wiring)
+//   GAUGES_DATA_SOURCE_LIVE  live_data.cpp, parsed from CarCANdy's
+//                            GaugesPlugin broadcast over UART (GPIO44 RX,
+//                            see live_data.cpp)
+// Can also be set per build with -D GAUGES_DATA_SOURCE=... in
+// platformio.ini. Flip this one line to switch between developing the
+// visuals against the simulator and showing real data -- app.cpp is the
+// only other place that cares which one is active.
+#define GAUGES_DATA_SOURCE_SIM 0
+#define GAUGES_DATA_SOURCE_LIVE 1
+#ifndef GAUGES_DATA_SOURCE
+#define GAUGES_DATA_SOURCE GAUGES_DATA_SOURCE_SIM
+#endif

@@ -48,6 +48,13 @@
     "lineLock": {
       "enabled": false,
       "config": {}
+    },
+    "gauges": {
+      "enabled": false,
+      "config": {
+        "auxPort": "AUX1",
+        "intervalMs": 100
+      }
     }
   }
 }

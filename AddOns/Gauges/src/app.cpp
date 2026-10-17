@@ -3,6 +3,9 @@
 #include <math.h>
 #include "config.h"
 #include "vehicle_sim.h"
+#if GAUGES_DATA_SOURCE == GAUGES_DATA_SOURCE_LIVE
+#include "live_data.h"
+#endif
 
 #define UPDATE_PERIOD_MS 16
 #define SWEEP_MS 1800
@@ -29,7 +32,11 @@ static void update_cb(lv_timer_t *timer)
 {
     LV_UNUSED(timer);
     uint32_t now = lv_tick_get();
+#if GAUGES_DATA_SOURCE == GAUGES_DATA_SOURCE_LIVE
+    const float *readings = live_data_step(now - last_ms);
+#else
     const float *readings = vehicle_sim_step(now - last_ms);
+#endif
     last_ms = now;
     track_peaks(readings);
 
@@ -90,7 +97,11 @@ GaugeColor app_get_color(void)
 
 void app_init(void)
 {
+#if GAUGES_DATA_SOURCE == GAUGES_DATA_SOURCE_LIVE
+    live_data_init();
+#else
     vehicle_sim_reset(0xB0057);
+#endif
     app_reset_all_peaks();
     last_ms = lv_tick_get();
     app_set_gauge(GAUGE_TYPE);

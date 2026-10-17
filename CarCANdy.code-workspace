@@ -17,13 +17,10 @@
 			"path": "Firmware/Shared"
 		},
 		{
-			"path": "DOC"
-		},
-		{
 			"path": "CLI"
 		},
 		{
-			"path": "AddOns/CarCANdy-Gauges"
+			"path": "AddOns/Gauges"
 		}
 	],
 	"settings": {},

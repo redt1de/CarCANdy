@@ -4,6 +4,7 @@
 #include "FilterManager.h"
 #include "Logging.h"
 #include "PluginManager.h"
+#include "plugins/GaugesPlugin.h"
 #include "plugins/ShiftLightPlugin.h"
 #include <Arduino.h>
 
@@ -15,6 +16,7 @@ CANManager canManager(config, filterManager);
 CommManager commManager(config, canManager, filterManager);
 PluginManager pluginManager(config, canManager, logging);
 ShiftLightPlugin shiftLightPlugin;
+GaugesPlugin gaugesPlugin;
 
 void onCanFrame(const CarCANdy::CanFrame &frame) {
   logging.logCanFrame(frame);
@@ -104,6 +106,7 @@ void setup() {
   commManager.begin();
 
   pluginManager.registerPlugin(&shiftLightPlugin);
+  pluginManager.registerPlugin(&gaugesPlugin);
   pluginManager.begin();
 
   logging.info("CarCANdy Teensy firmware started");
