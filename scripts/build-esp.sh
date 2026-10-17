@@ -8,7 +8,7 @@ if [[ -n "$1" ]]; then
 fi
 
 echo building ESP...
-cd $BASEDIR/ESP32/
+cd $BASEDIR/Firmware/ESP32/
 pio run -e esp32-s3-mini
 RESULT=$?
 

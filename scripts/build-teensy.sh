@@ -3,7 +3,7 @@ source $(find ../ -type f -name script.env)
 
 
 echo building Teensy...
-cd $BASEDIR/Teensy/
+cd $BASEDIR/Firmware/Teensy/
 pio run 
 RESULT=$?
 

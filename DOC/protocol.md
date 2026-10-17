@@ -1,7 +1,7 @@
 # Teensy <-> ESP32 Protocol
 
-Defined in [`Shared/Packet.h`](../Shared/Packet.h) and
-[`Shared/CanTypes.h`](../Shared/CanTypes.h).
+Defined in [`Firmware/Shared/Packet.h`](../Firmware/Shared/Packet.h) and
+[`Firmware/Shared/CanTypes.h`](../Firmware/Shared/CanTypes.h).
 
 ## Frame format
 
@@ -23,22 +23,22 @@ Defined in [`Shared/Packet.h`](../Shared/Packet.h) and
 | CONFIG_DATA | Teensy -> ESP32  | config JSON bytes, reply to CONFIG_GET     |
 | CAN_FRAME   | either           | Teensy -> ESP32: a frame received off the bus. ESP32 -> Teensy: a frame to transmit, subject to `CANManager::sendFrame()`'s per-bus enabled/mode check (ACK/NACK reply) |
 | LOG_LINE    | Teensy -> ESP32  | one line of Logging's non-CAN-frame output, for the WebUI's Logging page |
-| STATUS      | Teensy -> ESP32  | periodic health/status blob (`CarCANdy::StatusInfo` in `Shared/CanTypes.h`), currently just `sdReady` |
+| STATUS      | Teensy -> ESP32  | periodic health/status blob (`CarCANdy::StatusInfo` in `Firmware/Shared/CanTypes.h`), currently just `sdReady` |
 
-The Teensy-side dispatch lives in `Teensy/src/CommManager.cpp`. The ESP32
-side (`ESP32/src/CommManager.cpp`) sends `CONFIG_GET` on a retry loop until
+The Teensy-side dispatch lives in `Firmware/Teensy/src/CommManager.cpp`. The ESP32
+side (`Firmware/ESP32/src/CommManager.cpp`) sends `CONFIG_GET` on a retry loop until
 the Teensy answers (caching the JSON for `GET /api/config`), forwards
 `POST /api/config` as `CONFIG_SET` and `POST /api/can/send` as a `CAN_FRAME`
 transmit request (both fire-and-forget -- see below), and forwards inbound
 `CAN_FRAME`/`LOG_LINE` out to WebSocket clients via callbacks. `STATUS` is
-sent by `Teensy/src/CommManager.cpp::sendStatus()` every 2s once its
+sent by `Firmware/Teensy/src/CommManager.cpp::sendStatus()` every 2s once its
 `CommClient` is up; the ESP32 side just caches the latest value (no history)
 and serves it via `GET /api/status`.
 
 `LOG_LINE` is produced by `Logging::write()` (Teensy) calling a line
-callback wired up in `Teensy/src/main.cpp` -- every complete
+callback wired up in `Firmware/Teensy/src/main.cpp` -- every complete
 print()/println()/printf() call Logging makes gets forwarded this way
-(mirroring whatever would also go to `/debug_NN.log` if debug logging is
+(mirroring whatever would also go to `/log/debug_NN.log` if debug logging is
 enabled on SD, but independent of that setting -- this stream works even
 with SD debug logging off). `logCanFrame()` deliberately bypasses `write()`
 so CAN frames are never sent as LOG_LINE packets.
@@ -46,8 +46,8 @@ so CAN frames are never sent as LOG_LINE packets.
 ### CMD grammar
 
 `CMD`'s payload is an ASCII string (case-sensitive), parsed by
-`Teensy/src/CommManager.cpp::handleCmd()`. Currently used entirely for
-filter control (see `Teensy/include/FilterManager.h` and the filtering
+`Firmware/Teensy/src/CommManager.cpp::handleCmd()`. Currently used entirely for
+filter control (see `Firmware/Teensy/include/FilterManager.h` and the filtering
 design discussion):
 
 | Command                              | Effect |
@@ -80,7 +80,7 @@ and a real response if that silence turns out to be confusing in practice.
   tentatively read `type` + `length`, then validate `crc8` before trusting the
   frame — `0xAA` can legitimately appear inside real CAN payload bytes, so a
   single matching sync byte is not proof of a real frame boundary (false-sync
-  risk). `CarCANdy::PacketStreamParser` (in `Shared/Packet.h`) implements this
+  risk). `CarCANdy::PacketStreamParser` (in `Firmware/Shared/Packet.h`) implements this
   as a byte-at-a-time state machine: on a CRC mismatch it resets to scanning
   for the next sync byte rather than assuming the whole link desynced. Both
   the Teensy's and the ESP32's `UARTClient` feed it and queue up to 8

@@ -53,12 +53,12 @@ the Teensy (fire-and-forget -- see `CommManager::sendConfigSet()`/`sendCanFrame(
 Inbound `CAN_FRAME`/`LOG_LINE` packets from the Teensy are broadcast to any
 connected `/ws` WebSocket clients for the future Gauges/Sniffer pages.
 
-**Shared/** — protocol structs (`Packet.h`, `CanTypes.h`) and the abstract
+**Firmware/Shared/** — protocol structs (`Packet.h`, `CanTypes.h`) and the abstract
 `CommClient` interface, so both firmware projects agree on the wire format
 without duplicating struct definitions.
 
 **WebUI** — React + Vite frontend, built to a static bundle and copied into
-`ESP32/data/` for LittleFS upload. No Node runtime exists on the ESP32 itself;
+`Firmware/ESP32/data/` for LittleFS upload. No Node runtime exists on the ESP32 itself;
 Node/npm/Vite are purely build-time tooling.
 
 ## Development sequence

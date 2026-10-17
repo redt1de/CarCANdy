@@ -5,16 +5,16 @@
 			"name": "Project Root"
 		},
 		{
-			"path": "WebUI"
+			"path": "Firmware/WebUI"
 		},
 		{
-			"path": "ESP32"
+			"path": "Firmware/ESP32"
 		},
 		{
-			"path": "Teensy"
+			"path": "Firmware/Teensy"
 		},
 		{
-			"path": "Shared"
+			"path": "Firmware/Shared"
 		},
 		{
 			"path": "DOC"

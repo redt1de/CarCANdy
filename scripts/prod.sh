@@ -7,15 +7,15 @@ function errfail(){
 }
 
 echo "[*] buiding webui..."
-rm -rf ESP32/data/*
-rm -rf WebUI/dist/*
-cd $BASEDIR/WebUI
+rm -rf $BASEDIR/Firmware/ESP32/data/*
+rm -rf $BASEDIR/Firmware/WebUI/dist/*
+cd $BASEDIR/Firmware/WebUI
 npm run build || errfail "webui build failed"
 cp -r dist/* ../ESP32/data/
-cd ..
+cd $BASEDIR
 
 echo "[*] buiding teensy firmware..."
-cd $BASEDIR/Teensy/
+cd $BASEDIR/Firmware/Teensy/
 pio run || errfail "teensy firmware build failed"
 
 echo "[*] uploading to teensy..."
@@ -23,7 +23,7 @@ pio run -t upload || errfail "upload to teensy failed"
 
 
 echo "[*] buiding ESP32 firmware..."
-cd $BASEDIR/ESP32
+cd $BASEDIR/Firmware/ESP32
 pio run || errfail "esp32 firmware build failed"
 
 echo "[*] uploading to ESP32..."
@@ -33,5 +33,4 @@ echo "[*] uploading WebUI to ESP32..."
 pio run -t uploadfs ||errfail "webui upload failed"
 
 
-echo "[+] Succeeded!
-
+echo "[+] Succeeded!"

@@ -3,7 +3,7 @@ source $(find ../ -type f -name script.env)
 
 
 echo building NodeJS...
-cd $BASEDIR/WebUI/
+cd $BASEDIR/Firmware/WebUI/
 npm run build
 RESULT=$?
 

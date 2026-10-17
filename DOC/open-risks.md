@@ -12,8 +12,8 @@ needs direct register/DMA setup or a community library rather than the stock
 
 **Status**: intentionally deferred, not just unresolved -- UART has been
 plenty fast on real hardware through Stage 1/2, so this is on hold until/unless
-higher throughput is actually needed. `Teensy/src/SPIClient.*` and
-`ESP32/src/SPIClient.*` remain compiling stubs (`begin()` returns `false`,
+higher throughput is actually needed. `Firmware/Teensy/src/SPIClient.*` and
+`Firmware/ESP32/src/SPIClient.*` remain compiling stubs (`begin()` returns `false`,
 other methods are no-ops) in the meantime.
 
 ## 2. Config payload size vs. `PACKET_MAX_PAYLOAD` (partially addressed)
@@ -49,7 +49,7 @@ gets tight. The WebUI bundle's size vs. the LittleFS partition itself is
 still an open question, unchanged by the board switch.
 
 The project now also supports an ESP32-S3-Mini ("Super Mini ESP32-S3")
-board as a second environment (`esp32-s3-mini` in `ESP32/platformio.ini`,
+board as a second environment (`esp32-s3-mini` in `Firmware/ESP32/platformio.ini`,
 alongside `esp32dev`). It's configured with the same `default.csv`
 single-app partition scheme, so it has essentially the same ~64% headroom
 situation as `esp32dev`, not meaningfully better -- despite the chip having
@@ -126,7 +126,7 @@ Teensy's SD card CSV remains the complete, lossless record regardless) and
 `loop()` flushes them as one `{"type":"can_frames","frames":[...]}` WS
 message every `kFlushIntervalMs = 50`, instead of one message per frame.
 This keeps WS sends at ~20/sec regardless of CAN bus load, comfortably
-under the queue cap. `WebUI/src/ws.ts` unwraps the batch back into
+under the queue cap. `Firmware/WebUI/src/ws.ts` unwraps the batch back into
 individual `can_frame` message dispatches, so `SnifferPage`/`GaugesPage`
 never needed to change at all -- the batching is invisible above `ws.ts`.
 

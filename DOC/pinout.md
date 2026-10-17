@@ -122,7 +122,7 @@ Teensy 4.1 built-in SDIO slot — no extra wiring.
 2 auxiliary ports, each broken out with 5V, GND, and 2 signal pins. Both
 signal pins on both ports support digital in/out and PWM; each pair also
 doubles as one Teensy hardware UART; AUX2's pair is additionally wired to
-the ADC (A10/A11). See `Teensy/include/AuxPorts.h` for named constants
+the ADC (A10/A11). See `Firmware/Teensy/include/AuxPorts.h` for named constants
 plugins should use instead of hardcoding these pin numbers.
 
 | Port | Teensy Pin | Function              | Notes                          |
