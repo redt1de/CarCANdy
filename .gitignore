@@ -22,3 +22,6 @@ SampleData/
 # OS / editor cruft
 .DS_Store
 *.swp
+# KiCad lock files (who currently has a project file open) -- per-machine
+# state, not project content.
+*.lck
