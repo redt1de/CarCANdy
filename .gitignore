@@ -8,9 +8,17 @@
 data/*
 # Node / WebUI
 node_modules/
-WebUI/dist/
-
+Firmware/WebUI/dist/
+Hardware/CarCANdy-PCB-v2/CarCANdy-PCB-V2-backups/
+Hardware/CarCANdy-PCB/CarCANdy-PCB-backups/
+# KiCad's own auto-backup repos (Preferences > Common > Project Backup) --
+# each is a separate, real git repo KiCad manages itself; embedding it as a
+# gitlink in this repo would track a dangling commit reference, not the
+# actual snapshot files. Generic (not hardcoded per-PCB-folder) since KiCad
+# creates one of these in any project folder with backups enabled.
+**/.history/
+# Local test data pulled off the SD card -- not meant to be committed
+SampleData/
 # OS / editor cruft
 .DS_Store
 *.swp
-CarCANdy-PCB/CarCANdy-PCB-backups/
